@@ -9,4 +9,4 @@ var server = new TcpListener(IPAddress.Any, 6379);
 server.Start();
 var socket = server.AcceptSocket(); // wait for client
 
-await socket.SendAsync("+PONG\\r\\n"u8.ToArray());
+await socket.SendAsync("+PONG\r\n"u8.ToArray());
