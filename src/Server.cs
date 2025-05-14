@@ -8,3 +8,6 @@ Console.WriteLine("Logs from your program will appear here!");
 var server = new TcpListener(IPAddress.Any, 6379);
 server.Start();
 server.AcceptSocket(); // wait for client
+
+var socket = server.AcceptSocket();
+await socket.SendAsync("PONG"u8.ToArray());
