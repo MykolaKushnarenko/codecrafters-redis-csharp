@@ -10,4 +10,4 @@ server.Start();
 server.AcceptSocket(); // wait for client
 
 var socket = server.AcceptSocket();
-await socket.SendAsync("PONG"u8.ToArray());
+await socket.SendAsync("+PONG\\r\\n"u8.ToArray());
