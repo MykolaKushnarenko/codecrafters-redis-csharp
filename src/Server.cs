@@ -15,8 +15,9 @@ while (true)
     var buffer = new byte[1024];
     var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
     
-    var response = Encoding.UTF8.GetString(buffer, 0, received);
-    if (response == "PING")
+    var response = Encoding.UTF8.GetString(buffer, 0, received).Split(" ");
+    
+    if (response is ["redis-cli", "PING"])
     {
         await socket.SendAsync("+PONG\r\n"u8.ToArray());
     }
