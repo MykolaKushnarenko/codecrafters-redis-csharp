@@ -20,7 +20,9 @@ while (true)
 
     if (response.IndexOf(eom) > -1 /* is end of message */)
     {
-        await socket.SendAsync("+PONG\r\n"u8.ToArray());
+        var pong = "+PONG\r\n";
+        var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
+        await socket.SendAsync(sendMessageBytes, SocketFlags.None);
     }
 }
 
