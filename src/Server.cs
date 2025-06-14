@@ -18,7 +18,7 @@ while (true)
     
     var response = Encoding.UTF8.GetString(buffer, 0, received);
 
-    if (response.IndexOf(eom) > -1 /* is end of message */)
+    if (response.IndexOf(eom, StringComparison.Ordinal) > -1 /* is end of message */)
     {
         var pong = "+PONG\r\n";
         var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
