@@ -13,6 +13,7 @@ var socket = server.AcceptSocket(); // wait for client
 const string eom = "\r\n";
 while (true)
 {
+    
     var buffer = new byte[1024];
     var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
     
