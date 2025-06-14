@@ -19,6 +19,7 @@ while (true)
     
     var response = Encoding.UTF8.GetString(buffer, 0, received);
 
+    // rtets
     if (response.IndexOf(eom, StringComparison.Ordinal) > -1 /* is end of message */)
     {
         var pong = "+PONG\r\n";
