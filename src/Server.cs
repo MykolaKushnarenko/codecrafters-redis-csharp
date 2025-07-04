@@ -13,22 +13,27 @@ const string eom = "\r\n";
 while (true)
 {
     var socket = server.AcceptSocket();
-    await HandleClientRequest(socket);
+    
+    // fire and forgot
+    HandleClientRequest(socket);
 }
 
 async Task HandleClientRequest(Socket socket)
 {
-    var buffer = new byte[1024];
-    var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
-    
-    var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-    // rtets
-    if (response.IndexOf(eom, StringComparison.Ordinal) > -1)
+    while (true)
     {
-        var pong = "+PONG\r\n";
-        var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
-        await socket.SendAsync(sendMessageBytes, SocketFlags.None);
+        var buffer = new byte[1024];
+        var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
+
+        var response = Encoding.UTF8.GetString(buffer, 0, received);
+
+        // rtets
+        if (response.IndexOf(eom, StringComparison.Ordinal) > -1)
+        {
+            var pong = "+PONG\r\n";
+            var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
+            await socket.SendAsync(sendMessageBytes, SocketFlags.None);
+        }
     }
 }
 
