@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using codecrafters_redis;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
@@ -25,12 +26,19 @@ async Task HandleClientRequest(Socket socket)
         var buffer = new byte[1024];
         var received = await socket.ReceiveAsync(buffer, SocketFlags.None);
 
-        var response = Encoding.UTF8.GetString(buffer, 0, received);
-
-        // rtets
-        if (response.IndexOf(eom, StringComparison.Ordinal) > -1)
+        var result = ProtocolParser.Parse(buffer);
+        
+        if (result.Name.Equals("PING", StringComparison.CurrentCultureIgnoreCase))
         {
             var pong = "+PONG\r\n";
+            var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
+            await socket.SendAsync(sendMessageBytes, SocketFlags.None);
+        }
+
+        if (result.Name.Equals("ECHO", StringComparison.CurrentCultureIgnoreCase))
+        {
+            var echoResponse = result.Arguments[0].ToString();
+            var pong = $"${echoResponse.Length}\r\n{echoResponse}\r\n";
             var sendMessageBytes = Encoding.UTF8.GetBytes(pong);
             await socket.SendAsync(sendMessageBytes, SocketFlags.None);
         }
