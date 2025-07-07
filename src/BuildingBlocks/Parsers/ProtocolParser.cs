@@ -1,4 +1,6 @@
+using System.Net.Sockets;
 using System.Text;
+using codecrafters_redis.BuildingBlocks.Parsers;
 
 namespace codecrafters_redis;
 
@@ -6,20 +8,19 @@ public static class ProtocolParser
 {
     // *2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n
 
-    public static Command Parse(byte[] input)
+    public static ProtocolParseResult? Parse(Stream input)
     {
-        var memoryStream = new MemoryStream(input);
-        var result = ParseProtocol(memoryStream);
+        var result = ParseProtocol(input);
 
         switch (result)
         {
             case string command:
-                return new Command
+                return new ProtocolParseResult
                 {
                     Name = command
                 };
             case object[] array:
-                return new Command
+                return new ProtocolParseResult
                 {
                     Name = array[0].ToString(),
                     Arguments = array[1..]
@@ -28,7 +29,7 @@ public static class ProtocolParser
         }
     }
     
-    private static object ParseProtocol(Stream input)
+    public static object ParseProtocol(Stream input)
     {
         //var inMemoryStream = new MemoryStream(input);
         byte firstByte = (byte)input.ReadByte();
@@ -106,18 +107,3 @@ public static class ProtocolParser
         return builder.ToString();
     }
 }
-
-public static class RedisType
-{
-    public const byte SimpleStrings = (byte)'+';
-    public const byte Erorrs = (byte)'-';
-    public const byte Integers = (byte)':';
-    public const byte BulkStrings = (byte)'$';
-    public const byte Arrays = (byte)'*';
-}
-
-public class Command
-{
-    public string Name { get; set; }
-    public object[] Arguments { get; set; }
-};
