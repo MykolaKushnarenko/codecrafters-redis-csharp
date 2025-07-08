@@ -1,4 +1,5 @@
 using System.Text;
+using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -54,6 +55,12 @@ public class Mediator : IMediator
                 {
                     var handler = _serviceProvider.GetRequiredService<GetCommandHandler>();
                     response = await handler.HandleAsync(new GetCommand { Arguments = result.Arguments });
+                    break;
+                }
+                case "CONFIG":
+                {
+                    var handler = _serviceProvider.GetRequiredService<ConfigCommandHandler>();
+                    response = await handler.HandleAsync(new ConfigCommand { Arguments = result.Arguments });
                     break;
                 }
                 default:
