@@ -20,4 +20,9 @@ public class InMemoryStorage
     {
         _storage.TryRemove(key, out _);
     }
+
+    public string[] GetAllKeys()
+    {
+        return _storage.Keys.ToArray();
+    }
 }

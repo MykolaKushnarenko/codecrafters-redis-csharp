@@ -8,20 +8,19 @@ public static class ServerConfigurationHelper
     {
         var configuration = new ServerConfiguration();
         
+        Console.WriteLine($"{string.Join("," , args)}");
         if (args.Length > 0)
         {
-            string previous = args[0];
-            for (int i = 1; i < args.Length; i++)
+            for (int i = 0; i < args.Length; i++)
             {
-                if (previous.Equals("--dir", StringComparison.CurrentCultureIgnoreCase))
+                if (args[i].Equals("--dir", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    configuration.Dir = args[i++];
+                    configuration.Dir = args[i+1];
                 }
-                if (previous.Equals("--dbfilename", StringComparison.CurrentCultureIgnoreCase))
+                if (args[i].Equals("--dbfilename", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    configuration.DbFileName = args[i++];
+                    configuration.DbFileName = args[i+1];
                 }
-                previous = args[i++];
             }
         }
 

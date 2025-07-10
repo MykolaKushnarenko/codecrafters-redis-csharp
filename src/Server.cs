@@ -1,15 +1,17 @@
 using System.Net;
 using System.Net.Sockets;
 using codecrafters_redis.BuildingBlocks;
+using codecrafters_redis.BuildingBlocks.DB;
 using codecrafters_redis.BuildingBlocks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
-Console.WriteLine("Logs from your program will appear here!");
 
 var serviceCollection = new ServiceCollection();
 var provider = serviceCollection.AddBuildingBlocks(args).BuildServiceProvider();
 
+var initeiator = provider.GetRequiredService<Initiator>();
+await initeiator.InitializeAsync();
 // Uncomment this block to pass the first stage
 var server = new TcpListener(IPAddress.Any, 6379);
 server.Start();

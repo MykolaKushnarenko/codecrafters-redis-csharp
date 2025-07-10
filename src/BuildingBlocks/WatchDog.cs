@@ -20,4 +20,9 @@ public class WatchDog
 
         return false;
     }
+
+    public string[] GetAllKeys()
+    {
+        return _timestamps.Keys.ToArray();
+    }
 }

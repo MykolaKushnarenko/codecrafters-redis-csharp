@@ -31,7 +31,6 @@ public static class ProtocolParser
     
     public static object ParseProtocol(Stream input)
     {
-        //var inMemoryStream = new MemoryStream(input);
         byte firstByte = (byte)input.ReadByte();
         switch (firstByte)
         {

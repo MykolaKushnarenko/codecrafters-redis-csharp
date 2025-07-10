@@ -63,6 +63,12 @@ public class Mediator : IMediator
                     response = await handler.HandleAsync(new ConfigCommand { Arguments = result.Arguments });
                     break;
                 }
+                case "KEYS":
+                {
+                    var handler = _serviceProvider.GetRequiredService<KeysCommandHandler>();
+                    response = await handler.HandleAsync(new KeysCommand() { Arguments = result.Arguments });
+                    break;
+                }
                 default:
                     response = Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n");
                     break;

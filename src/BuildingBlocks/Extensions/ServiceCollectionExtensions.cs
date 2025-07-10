@@ -17,10 +17,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<SetCommandHandler>();
         services.AddSingleton<GetCommandHandler>();
         services.AddSingleton<ConfigCommandHandler>();
+        services.AddSingleton<KeysCommandHandler>();
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);
 
+        services.AddSingleton<Initiator>();
+        
         return services;
     }
 }
