@@ -14,14 +14,13 @@ public class Mediator : IMediator
         _commandHandlerFactory = commandHandlerFactory;
     }
 
-    public async Task Process(Context context)
+    public async Task ProcessAsync(Context context, CancellationToken cancellationToken)
     {
-        Console.WriteLine("Processing request");
         while (true)
         {
             byte[] buffer = new byte[1024];
 
-            await context.IncomingSocket.ReceiveAsync(buffer);
+            await context.IncomingSocket.ReceiveAsync(buffer, cancellationToken);
 
             using var memoryStream = new MemoryStream(buffer);
             var result = ProtocolParser.Parse(memoryStream);
@@ -33,21 +32,18 @@ public class Mediator : IMediator
 
             byte[] response;
             
-            Console.WriteLine("Getting handler");
             var handler = _commandHandlerFactory.GetHandler(result.Name);
             if (handler != null)
             {
-                Console.WriteLine("Executing command");
-
                 var command = new Command { Arguments = result.Arguments };
-                response = await handler.HandleAsync(command);
+                response = await handler.HandleAsync(command, cancellationToken);
             }
             else
             {
                 response = Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n");
             }
             
-            await context.IncomingSocket.SendAsync(response);
+            await context.IncomingSocket.SendAsync(response, cancellationToken);
         }
     }
 }

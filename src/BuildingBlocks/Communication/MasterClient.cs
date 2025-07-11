@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks.Parsers;
 
 namespace codecrafters_redis.BuildingBlocks.Communication;
 
@@ -16,21 +17,15 @@ public class MasterClient : IMasterClient
         _socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
     }
     
-    public async Task<CommunicationResult> Ping()
+    public async Task<CommunicationResult> Ping(CancellationToken cancellationToken)
     {
-        await TryConnectAsync();
+        await TryConnectAsync(cancellationToken);
         
         var pingCommand = $"*1{Constants.EOL}${Constants.PingCommand.Length}{Constants.EOL}{Constants.PingCommand}{Constants.EOL}";
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(pingCommand));
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(pingCommand), cancellationToken);
 
-        var buffer = new byte[1024];
-        await _socket.ReceiveAsync(buffer);
+        var parsedResult = await ReceiveInternalAsync(cancellationToken);
 
-        Console.WriteLine("Received response");
-        using var memoryBuffer = new MemoryStream(buffer);
-        var parsedResult = ProtocolParser.Parse(memoryBuffer);
-
-        Console.WriteLine($"Reply received {parsedResult.Name}");
         if (parsedResult.Name.Equals("PONG"))
         {
             return new CommunicationResult { Successed = true };
@@ -39,19 +34,69 @@ public class MasterClient : IMasterClient
         return new CommunicationResult() { Successed = false };
     }
 
-    private async Task TryConnectAsync()
+    private async Task<ProtocolParseResult?> ReceiveInternalAsync(CancellationToken cancellationToken)
+    {
+        var buffer = new byte[1024];
+        await _socket.ReceiveAsync(buffer, cancellationToken);
+
+        using var memoryBuffer = new MemoryStream(buffer);
+        var parsedResult = ProtocolParser.Parse(memoryBuffer);
+        return parsedResult;
+    }
+
+    public async Task<CommunicationResult> RepConfigCapa(CancellationToken cancellationToken)
+    {
+        await TryConnectAsync(cancellationToken);
+        var subCommand = "listening-port";
+        var command = "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n";
+        
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+
+        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+
+        if (parsedResult.Name.Equals("OK"))
+        {
+            return new CommunicationResult { Successed = true };
+        }
+
+        return new CommunicationResult { Successed = false };
+    }
+
+    public async Task<CommunicationResult> RepConfigListeningPort(CancellationToken cancellationToken)
+    {
+        await TryConnectAsync(cancellationToken);
+        
+        var subCommand = "listening-port";
+        var command = $"*3{Constants.EOL}" +
+                      $"${Constants.RepconfCommand.Length}{Constants.EOL}{Constants.RepconfCommand}{Constants.EOL}" +
+                      $"${subCommand.Length}{Constants.EOL}{subCommand}{Constants.EOL}" +
+                      $"${_configuration.Port.ToString().Length}{Constants.EOL}{_configuration.Port}{Constants.EOL}";
+        
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+
+        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+
+        if (parsedResult.Name.Equals("OK"))
+        {
+            return new CommunicationResult { Successed = true };
+        }
+
+        return new CommunicationResult() { Successed = false };
+    }
+
+    private async Task TryConnectAsync(CancellationToken cancellationToken)
     {
         if (_socket.Connected)
         {
             return;
         }
 
-        var host = await Dns.GetHostEntryAsync(_configuration.MasterHost);
+        var host = await Dns.GetHostEntryAsync(_configuration.MasterHost, cancellationToken);
         var ipEndPoint = new IPEndPoint(host.AddressList[0], _configuration.MasterPort);
 
         try
         {
-            await _socket.ConnectAsync(ipEndPoint);
+            await _socket.ConnectAsync(ipEndPoint, cancellationToken);
         }
         catch (Exception e)
         {

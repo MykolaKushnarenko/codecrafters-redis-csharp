@@ -15,7 +15,7 @@ public class ConfigCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.ConfigCommand;
 
-    public Task<byte[]> HandleAsync(Command command)
+    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var subCommand = command.Arguments[0].ToString();
         const string dirKey = "dir"; 

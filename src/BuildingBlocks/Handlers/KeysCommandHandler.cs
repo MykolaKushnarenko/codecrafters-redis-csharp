@@ -17,7 +17,7 @@ public class KeysCommandHandler : ICommandHandler<Command>
         _watchDog = watchDog;
     }
     
-    public Task<byte[]> HandleAsync(Command command)
+    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var subCommand = command.Arguments[0].ToString();
         if (subCommand == "*")

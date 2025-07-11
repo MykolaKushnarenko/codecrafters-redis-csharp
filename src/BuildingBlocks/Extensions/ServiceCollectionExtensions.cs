@@ -12,6 +12,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddBuildingBlocks(this IServiceCollection services, string[] args)
     {
+        services.AddSingleton<Server>();
+        services.AddSingleton<ApplicationLifetime>();
+        
         services.AddSingleton<InMemoryStorage>();
         services.AddSingleton<WatchDog>();
         services.AddSingleton<IMediator, Mediator>();

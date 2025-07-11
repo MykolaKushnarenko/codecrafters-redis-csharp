@@ -20,19 +20,19 @@ public class Initiator
         _masterClient = masterClient;
     }
 
-    public async Task InitializeAsync()
+    public async Task InitializeAsync(CancellationToken cancellationToken)
     {
-        await RehydrateStoreStateAsync();
+        await RehydrateStoreStateAsync(cancellationToken);
 
         if (_configuration.Role.Equals("slave", StringComparison.CurrentCultureIgnoreCase))
         {
-            Console.WriteLine("Sending master a request");
-            var result = await _masterClient.Ping();
-            Console.WriteLine($"Response {result.Successed}");
+            var result = await _masterClient.Ping(cancellationToken);
+            await _masterClient.RepConfigListeningPort(cancellationToken);
+            await _masterClient.RepConfigCapa(cancellationToken);
         }
     }
 
-    private async Task RehydrateStoreStateAsync()
+    private async Task RehydrateStoreStateAsync(CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(_configuration.Dir) || string.IsNullOrEmpty(_configuration.DbFileName))
         {
@@ -40,7 +40,6 @@ public class Initiator
         }
         
         var filePath = $"{_configuration.Dir}/{_configuration.DbFileName}";
-        Console.WriteLine(filePath);
         var file = File.Open(filePath, FileMode.OpenOrCreate);
 
         if (file.Length == 0)
@@ -48,12 +47,11 @@ public class Initiator
             return;
         }
         
-        var dbs = await DbParser.Parse(file);
+        var dbs = await DbParser.ParseAsync(file, cancellationToken);
         var firstDb = dbs.First();
 
         foreach (var keyValue in firstDb.KeyValues)
         {
-            Console.WriteLine($"Inserting {keyValue.Key}");
             _storage.Set(keyValue.Key, keyValue.Value);
         }
 

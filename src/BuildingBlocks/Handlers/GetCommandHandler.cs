@@ -17,7 +17,7 @@ public class GetCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.GetCommand;
 
-    public Task<byte[]> HandleAsync(Command command)
+    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var key = command.Arguments[0].ToString(); 
         

@@ -15,7 +15,7 @@ public class InfoCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.InfoCommand;
 
-    public Task<byte[]> HandleAsync(Command command)
+    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var subCommand = command.Arguments[0].ToString();
 

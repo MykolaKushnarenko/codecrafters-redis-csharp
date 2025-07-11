@@ -6,5 +6,5 @@ public interface ICommandHandler<in TCommand> where TCommand : ICommand
 {
     public string HandlingCommandName { get; }
     
-    Task<byte[]> HandleAsync(TCommand command);
+    Task<byte[]> HandleAsync(TCommand command, CancellationToken cancellationToken);
 }

@@ -5,12 +5,12 @@ namespace codecrafters_redis.BuildingBlocks.DB;
 
 public static class DbParser
 {
-    public static async Task<List<Db>> Parse(Stream file)
+    public static async Task<List<Db>> ParseAsync(Stream file, CancellationToken cancellationToken)
     {
         var dbs = new List<Db>();
         
-        var magicHeader = await ParseMagicHeader(file);
-        var metadata = await ParseMetadata(file);
+        var magicHeader = await ParseMagicHeaderAsync(file, cancellationToken);
+        var metadata = await ParseMetadataAsync(file, cancellationToken);
 
         Db db = null;
         
@@ -34,7 +34,7 @@ public static class DbParser
             {
                 file.Position--;
                 
-                var (keyValue, keyExpiration) = await ParseData(file);
+                var (keyValue, keyExpiration) = await ParseDataAsync(file, cancellationToken);
                 db!.KeyValues.Add(keyValue.Key, keyValue.Value);
 
                 if (keyExpiration.HasValue)
@@ -50,7 +50,7 @@ public static class DbParser
         return dbs;
     }
 
-    private static async Task<(KeyValuePair<string, object>, KeyValuePair<string, DateTimeOffset>?)> ParseData(Stream stream)
+    private static async Task<(KeyValuePair<string, object>, KeyValuePair<string, DateTimeOffset>?)> ParseDataAsync(Stream stream, CancellationToken cancellationToken)
     {
         KeyValuePair<string, DateTimeOffset>? expirationTimes = null;
         var opcode = (byte)stream.ReadByte();
@@ -60,14 +60,14 @@ public static class DbParser
         if ((RDBOperationCodes)opcode == RDBOperationCodes.ExpSec)
         {
             var secondsInBytes = new byte[4];
-            await stream.ReadExactlyAsync(secondsInBytes);
+            await stream.ReadExactlyAsync(secondsInBytes, cancellationToken);
             var seconds = BinaryPrimitives.ReadInt32LittleEndian(secondsInBytes);
             expirationTime = DateTime.UnixEpoch.AddSeconds(seconds);
         }
         else if ((RDBOperationCodes)opcode == RDBOperationCodes.ExpMilSec)
         {
             var milsecInBytes = new byte[8];
-            await stream.ReadExactlyAsync(milsecInBytes);
+            await stream.ReadExactlyAsync(milsecInBytes, cancellationToken);
             var milli = BinaryPrimitives.ReadInt64LittleEndian(milsecInBytes);
             expirationTime = DateTime.UnixEpoch.AddMilliseconds(milli);
         }
@@ -76,7 +76,7 @@ public static class DbParser
             stream.Position--;
         }
         
-        var data = await ExtractKeyValue(stream);
+        var data = await ExtractKeyValue(stream, cancellationToken);
 
         if (expirationTime.HasValue)
         {
@@ -86,15 +86,15 @@ public static class DbParser
         return (data, expirationTimes);
     }
 
-    private static async Task<KeyValuePair<string, object>> ExtractKeyValue(Stream stream)
+    private static async Task<KeyValuePair<string, object>> ExtractKeyValue(Stream stream, CancellationToken cancellationToken)
     {
         var opcode = (byte)stream.ReadByte();
         if (opcode == (byte)RDBTypes.StringEncoding)
         {
-            var key = await ReadKey(stream);
-            var valueLength = await GetLength(stream);
+            var key = await ReadKeyAsync(stream, cancellationToken);
+            var valueLength = await GetLengthAsync(stream, cancellationToken);
             var valueBytes = new byte[valueLength];
-            await stream.ReadExactlyAsync(valueBytes);
+            await stream.ReadExactlyAsync(valueBytes, cancellationToken);
 
             return new KeyValuePair<string, object>(key, Encoding.UTF8.GetString(valueBytes));
         }
@@ -115,27 +115,15 @@ public static class DbParser
         stream.Position--;
         return (0, 0);
     }
-    
-    private static int ParseDbSelector(Stream stream)
-    {
-        var dbSelector = stream.ReadByte();
-        if(dbSelector == (byte)RDBOperationCodes.DbSelector)
-        {
-            return stream.ReadByte();
-        }
 
-        stream.Position--;
-        return 0;
-    }
-
-    private static async Task<Dictionary<string, string>> ParseMetadata(Stream stream)
+    private static async Task<Dictionary<string, string>> ParseMetadataAsync(Stream stream, CancellationToken cancellationToken)
     {
         var metadata = new Dictionary<string, string>();
         var isAuxiliary = stream.ReadByte() == (byte)RDBOperationCodes.Auxiliary;
         while (isAuxiliary)
         {
-            var key = await ReadKey(stream);
-            var value = await ReadStringValue(stream);
+            var key = await ReadKeyAsync(stream, cancellationToken);
+            var value = await ReadStringValueAsync(stream, cancellationToken);
 
             metadata.Add(key, value);
             isAuxiliary = stream.ReadByte() == (byte)RDBOperationCodes.Auxiliary;
@@ -146,16 +134,16 @@ public static class DbParser
         return metadata;
     }
 
-    private static async Task<string> ReadKey(Stream stream)
+    private static async Task<string> ReadKeyAsync(Stream stream, CancellationToken cancellationToken)
     {
-        var keyLength = await GetLength(stream);
+        var keyLength = await GetLengthAsync(stream, cancellationToken);
         var keyBytes = new byte[keyLength];
-        _ = await stream.ReadAsync(keyBytes);
+        _ = await stream.ReadAsync(keyBytes, cancellationToken);
         var key = Encoding.UTF8.GetString(keyBytes);
         return key;
     }
 
-    private static async Task<string> ReadStringValue(Stream stream)
+    private static async Task<string> ReadStringValueAsync(Stream stream, CancellationToken cancellationToken)
     {
         var valueStartPosition = stream.Position;
         var valueEndPosition = 0;
@@ -168,12 +156,12 @@ public static class DbParser
         var valueBytes = new byte[valueLength];
             
         stream.Position = valueStartPosition;
-        _ = await stream.ReadAsync(valueBytes);
+        _ = await stream.ReadAsync(valueBytes, cancellationToken);
         var value = Encoding.UTF8.GetString(valueBytes);
         return value;
     }
 
-    private static async ValueTask<int> GetLength(Stream stream)
+    private static async ValueTask<int> GetLengthAsync(Stream stream, CancellationToken cancellationToken)
     {
         byte firstByte = (byte)stream.ReadByte();
         var firstTwoBits = firstByte >> 6;
@@ -192,23 +180,23 @@ public static class DbParser
         if (firstTwoBits == 0b10)
         {
             var bodyLengthBytes = new byte[4];
-            _ = await stream.ReadAsync(bodyLengthBytes);
+            _ = await stream.ReadAsync(bodyLengthBytes, cancellationToken);
             return BinaryPrimitives.ReadInt32LittleEndian(bodyLengthBytes);
         }
 
         return 0;
     }
     
-    private static async Task<string> ParseMagicHeader(Stream stream)
+    private static async Task<string> ParseMagicHeaderAsync(Stream stream, CancellationToken cancellationToken)
     {
         const int magicHeaderValue = 5;
         const int magicHeaderVersion = 4;
 
         var headerValueBites = new byte[magicHeaderValue];
-        _ = await stream.ReadAsync(headerValueBites);
+        _ = await stream.ReadAsync(headerValueBites, cancellationToken);
         
         var headerVersionBites = new byte[magicHeaderVersion];
-        _ = await stream.ReadAsync(headerVersionBites);
+        _ = await stream.ReadAsync(headerVersionBites, cancellationToken);
 
         return $"{Encoding.UTF8.GetString(headerValueBites)}{Encoding.UTF8.GetString(headerVersionBites)}";
     }

@@ -14,6 +14,7 @@ public static class Constants
     public const string ConfigCommand = "CONFIG";
     public const string KeysCommand = "KEYS";
     public const string InfoCommand = "INFO";
+    public const string RepconfCommand = "REPLCONF";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";
