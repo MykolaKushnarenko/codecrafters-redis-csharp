@@ -9,6 +9,6 @@ public class PsyncCommandHandler : ICommandHandler<Command>
     
     public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        return Task.FromResult(Encoding.UTF8.GetBytes("+FULLRESYNC <REPL_ID> 0\r\n"));
+        return Task.FromResult(Encoding.UTF8.GetBytes("+FULLRESYNC 8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb 0\r\n"));
     }
 }
