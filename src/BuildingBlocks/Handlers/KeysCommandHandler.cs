@@ -4,10 +4,12 @@ using codecrafters_redis.BuildingBlocks.Storage;
 
 namespace codecrafters_redis.BuildingBlocks.Handlers;
 
-public class KeysCommandHandler : ICommandHandler<KeysCommand>
+public class KeysCommandHandler : ICommandHandler<Command>
 {
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
+    
+    public string HandlingCommandName => Constants.KeysCommand;
     
     public KeysCommandHandler(InMemoryStorage storage, WatchDog watchDog)
     {
@@ -15,7 +17,7 @@ public class KeysCommandHandler : ICommandHandler<KeysCommand>
         _watchDog = watchDog;
     }
     
-    public Task<byte[]> HandleAsync(KeysCommand command)
+    public Task<byte[]> HandleAsync(Command command)
     {
         var subCommand = command.Arguments[0].ToString();
         if (subCommand == "*")

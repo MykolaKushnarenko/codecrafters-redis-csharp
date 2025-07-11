@@ -6,4 +6,14 @@ public static class Constants
     public const string OkResponse = "+OK\r\n";
     public const string PongResponse = "+PONG\r\n";
     public const string BulkStringEmptyResponse = "$-1\r\n";
+
+    public const string PingCommand = "PING";
+    public const string EchoCommand = "ECHO";
+    public const string SetCommand = "SET";
+    public const string GetCommand = "GET";
+    public const string ConfigCommand = "CONFIG";
+    public const string KeysCommand = "KEYS";
+    public const string InfoCommand = "INFO";
+
+    
 }

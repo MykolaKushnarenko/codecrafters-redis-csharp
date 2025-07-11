@@ -7,4 +7,6 @@ public class ServerConfiguration
     public string DbFileName { get; set; }
 
     public int Port { get; set; } = 6379;
+    
+    public string Role { get; set; } = "master";
 }

@@ -1,3 +1,5 @@
+using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks.HandlerFactory;
 using codecrafters_redis.BuildingBlocks.Handlers;
 using codecrafters_redis.BuildingBlocks.Helpers;
 using codecrafters_redis.BuildingBlocks.Storage;
@@ -12,12 +14,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<InMemoryStorage>();
         services.AddSingleton<WatchDog>();
         services.AddSingleton<IMediator, Mediator>();
-        services.AddSingleton<PingCommandHandler>();
-        services.AddSingleton<EchoCommandHandler>();
-        services.AddSingleton<SetCommandHandler>();
-        services.AddSingleton<GetCommandHandler>();
-        services.AddSingleton<ConfigCommandHandler>();
-        services.AddSingleton<KeysCommandHandler>();
+        services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
+
+        services.Scan(x =>
+            x.FromAssemblyOf<Command>()
+                .AddClasses(c => c.AssignableTo<ICommandHandler<Command>>())
+                .AsImplementedInterfaces()
+                .WithSingletonLifetime());
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);

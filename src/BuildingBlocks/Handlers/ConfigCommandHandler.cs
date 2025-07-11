@@ -4,7 +4,7 @@ using codecrafters_redis.BuildingBlocks.Configurations;
 
 namespace codecrafters_redis.BuildingBlocks.Handlers;
 
-public class ConfigCommandHandler : ICommandHandler<ConfigCommand>
+public class ConfigCommandHandler : ICommandHandler<Command>
 {
     private readonly ServerConfiguration _configuration;
 
@@ -13,7 +13,9 @@ public class ConfigCommandHandler : ICommandHandler<ConfigCommand>
         _configuration = configuration;
     }
 
-    public Task<byte[]> HandleAsync(ConfigCommand command)
+    public string HandlingCommandName => Constants.ConfigCommand;
+
+    public Task<byte[]> HandleAsync(Command command)
     {
         var subCommand = command.Arguments[0].ToString();
         const string dirKey = "dir"; 

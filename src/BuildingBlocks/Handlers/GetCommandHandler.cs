@@ -1,9 +1,10 @@
 using System.Text;
+using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.Storage;
 
 namespace codecrafters_redis.BuildingBlocks.Handlers;
 
-public class GetCommandHandler : ICommandHandler<GetCommand>
+public class GetCommandHandler : ICommandHandler<Command>
 {
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
@@ -13,8 +14,10 @@ public class GetCommandHandler : ICommandHandler<GetCommand>
         _storage = storage;
         _watchDog = watchDog;
     }
-    
-    public Task<byte[]> HandleAsync(GetCommand command)
+
+    public string HandlingCommandName => Constants.GetCommand;
+
+    public Task<byte[]> HandleAsync(Command command)
     {
         var key = command.Arguments[0].ToString(); 
         

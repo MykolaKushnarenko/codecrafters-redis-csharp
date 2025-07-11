@@ -1,11 +1,10 @@
 using System.Text;
+using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.Storage;
 
 namespace codecrafters_redis.BuildingBlocks.Handlers;
 
-// *5\r\n$3\r\nSET\r\n$9\r\nraspberry\r\n$5\r\ngrape\r\n$2\r\npx\r\n$3\r\n100\r\n
-
-public class SetCommandHandler : ICommandHandler<SetCommand>
+public class SetCommandHandler : ICommandHandler<Command>
 {
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
@@ -15,8 +14,10 @@ public class SetCommandHandler : ICommandHandler<SetCommand>
         _storage = storage;
         _watchDog = watchDog;
     }
+    
+    public string HandlingCommandName => Constants.SetCommand;
 
-    public Task<byte[]> HandleAsync(SetCommand command)
+    public Task<byte[]> HandleAsync(Command command)
     {
         var key = command.Arguments[0].ToString();
         var value = command.Arguments[1].ToString();

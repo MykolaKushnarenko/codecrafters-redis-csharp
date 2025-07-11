@@ -1,21 +1,22 @@
 using System.Text;
 using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Handlers;
+using codecrafters_redis.BuildingBlocks.HandlerFactory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace codecrafters_redis.BuildingBlocks;
 
 public class Mediator : IMediator
 {
-    private readonly IServiceProvider _serviceProvider;
-
-    public Mediator(IServiceProvider serviceProvider)
+    private readonly ICommandHandlerFactory _commandHandlerFactory;
+    
+    public Mediator(ICommandHandlerFactory commandHandlerFactory)
     {
-        _serviceProvider = serviceProvider;
+        _commandHandlerFactory = commandHandlerFactory;
     }
 
     public async Task Process(Context context)
     {
+        Console.WriteLine("Processing request");
         while (true)
         {
             byte[] buffer = new byte[1024];
@@ -31,49 +32,21 @@ public class Mediator : IMediator
             }
 
             byte[] response;
-            switch (result.Name.ToUpperInvariant())
+            
+            Console.WriteLine("Getting handler");
+            var handler = _commandHandlerFactory.GetHandler(result.Name);
+            if (handler != null)
             {
-                case "PING":
-                {
-                    var handler = _serviceProvider.GetRequiredService<PingCommandHandler>();
-                    response = await handler.HandleAsync(new PingCommand { Arguments = result.Arguments });
-                    break;
-                }
-                case "ECHO":
-                {
-                    var handler = _serviceProvider.GetRequiredService<EchoCommandHandler>();
-                    response = await handler.HandleAsync(new EchoCommand { Arguments = result.Arguments });
-                    break;
-                }
-                case "SET":
-                {
-                    var handler = _serviceProvider.GetRequiredService<SetCommandHandler>();
-                    response = await handler.HandleAsync(new SetCommand { Arguments = result.Arguments });
-                    break;
-                }
-                case "GET":
-                {
-                    var handler = _serviceProvider.GetRequiredService<GetCommandHandler>();
-                    response = await handler.HandleAsync(new GetCommand { Arguments = result.Arguments });
-                    break;
-                }
-                case "CONFIG":
-                {
-                    var handler = _serviceProvider.GetRequiredService<ConfigCommandHandler>();
-                    response = await handler.HandleAsync(new ConfigCommand { Arguments = result.Arguments });
-                    break;
-                }
-                case "KEYS":
-                {
-                    var handler = _serviceProvider.GetRequiredService<KeysCommandHandler>();
-                    response = await handler.HandleAsync(new KeysCommand() { Arguments = result.Arguments });
-                    break;
-                }
-                default:
-                    response = Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n");
-                    break;
-            }
+                Console.WriteLine("Executing command");
 
+                var command = new Command { Arguments = result.Arguments };
+                response = await handler.HandleAsync(command);
+            }
+            else
+            {
+                response = Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n");
+            }
+            
             await context.IncomingSocket.SendAsync(response);
         }
     }
