@@ -8,27 +8,36 @@ public static class ServerConfigurationHelper
     {
         var configuration = new ServerConfiguration();
         
-        Console.WriteLine($"{string.Join("," , args)}");
-        if (args.Length > 0)
+        if (args.Length <= 0) return configuration;
+        
+        for (var i = 0; i < args.Length; i++)
         {
-            for (int i = 0; i < args.Length; i++)
+            if (args[i].Equals(Constants.DirArgument, StringComparison.CurrentCultureIgnoreCase))
             {
-                if (args[i].Equals("--dir", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    configuration.Dir = args[i+1];
-                }
-                if (args[i].Equals("--dbfilename", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    configuration.DbFileName = args[i+1];
-                }
+                configuration.Dir = args[i+1];
+            }
+            if (args[i].Equals(Constants.DbFileNameArgument, StringComparison.CurrentCultureIgnoreCase))
+            {
+                configuration.DbFileName = args[i+1];
+            }
 
-                if (args[i].Equals("--port", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    configuration.Port = int.Parse(args[i+1]);
-                }
+            if (args[i].Equals(Constants.PortArgument, StringComparison.CurrentCultureIgnoreCase))
+            {
+                configuration.Port = int.Parse(args[i+1]);
+            }
+
+            if (args[i].Equals(Constants.ReplicaOfArgument, StringComparison.CurrentCultureIgnoreCase))
+            {
+                var masterHostConfiguration = args[i+1].Split(" ");
+                    
+                configuration.MasterHost = masterHostConfiguration[0];
+                configuration.MasterPort = int.Parse(masterHostConfiguration[1]);
+                configuration.Role = "slave";
             }
         }
 
         return configuration;
     }
+    
+    
 }

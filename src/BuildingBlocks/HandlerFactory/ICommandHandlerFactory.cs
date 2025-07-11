@@ -1,4 +1,5 @@
 using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks.Handlers;
 
 namespace codecrafters_redis.BuildingBlocks.HandlerFactory;
 

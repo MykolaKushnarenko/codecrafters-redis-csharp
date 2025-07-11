@@ -1,4 +1,6 @@
-namespace codecrafters_redis.BuildingBlocks;
+using codecrafters_redis.BuildingBlocks.Commands;
+
+namespace codecrafters_redis.BuildingBlocks.Handlers;
 
 public interface ICommandHandler<in TCommand> where TCommand : ICommand
 {

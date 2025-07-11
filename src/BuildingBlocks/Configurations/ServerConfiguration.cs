@@ -9,4 +9,8 @@ public class ServerConfiguration
     public int Port { get; set; } = 6379;
     
     public string Role { get; set; } = "master";
+    
+    public string MasterHost { get; set; }
+    
+    public int MasterPort { get; set; }
 }

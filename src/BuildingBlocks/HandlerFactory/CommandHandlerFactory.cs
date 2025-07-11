@@ -1,4 +1,5 @@
 using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace codecrafters_redis.BuildingBlocks.HandlerFactory;

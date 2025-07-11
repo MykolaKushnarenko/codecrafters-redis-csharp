@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks;
+namespace codecrafters_redis.BuildingBlocks.Commands;
 
 public interface ICommand
 {

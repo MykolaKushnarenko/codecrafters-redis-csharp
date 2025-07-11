@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace codecrafters_redis.BuildingBlocks.Storage;
 
 public class WatchDog
 {
@@ -19,10 +19,5 @@ public class WatchDog
         }
 
         return false;
-    }
-
-    public string[] GetAllKeys()
-    {
-        return _timestamps.Keys.ToArray();
     }
 }
