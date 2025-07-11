@@ -17,7 +17,7 @@ public class MasterClient : IMasterClient
         _socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
     }
     
-    public async Task<CommunicationResult> Ping(CancellationToken cancellationToken)
+    public async Task<CommunicationResult> SendPing(CancellationToken cancellationToken)
     {
         await TryConnectAsync(cancellationToken);
         
@@ -44,7 +44,7 @@ public class MasterClient : IMasterClient
         return parsedResult;
     }
 
-    public async Task<CommunicationResult> RepConfigCapa(CancellationToken cancellationToken)
+    public async Task<CommunicationResult> SendRepConfigCapa(CancellationToken cancellationToken)
     {
         await TryConnectAsync(cancellationToken);
         var subCommand = "listening-port";
@@ -62,7 +62,25 @@ public class MasterClient : IMasterClient
         return new CommunicationResult { Successed = false };
     }
 
-    public async Task<CommunicationResult> RepConfigListeningPort(CancellationToken cancellationToken)
+    public async Task<CommunicationResult> SendPSync(CancellationToken cancellationToken)
+    {
+        await TryConnectAsync(cancellationToken);
+
+        var command = "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n";
+        
+        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+
+        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+        
+        if (parsedResult.Name.Equals("OK"))
+        {
+            return new CommunicationResult { Successed = true };
+        }
+
+        return new CommunicationResult() { Successed = false };
+    }
+
+    public async Task<CommunicationResult> SendRepConfigListeningPort(CancellationToken cancellationToken)
     {
         await TryConnectAsync(cancellationToken);
         

@@ -26,9 +26,10 @@ public class Initiator
 
         if (_configuration.Role.Equals("slave", StringComparison.CurrentCultureIgnoreCase))
         {
-            var result = await _masterClient.Ping(cancellationToken);
-            await _masterClient.RepConfigListeningPort(cancellationToken);
-            await _masterClient.RepConfigCapa(cancellationToken);
+            var result = await _masterClient.SendPing(cancellationToken);
+            await _masterClient.SendRepConfigListeningPort(cancellationToken);
+            await _masterClient.SendRepConfigCapa(cancellationToken);
+            await _masterClient.SendPSync(cancellationToken);
         }
     }
 
