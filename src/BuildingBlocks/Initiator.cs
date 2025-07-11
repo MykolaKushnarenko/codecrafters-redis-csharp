@@ -1,3 +1,4 @@
+using codecrafters_redis.BuildingBlocks.Communication;
 using codecrafters_redis.BuildingBlocks.Configurations;
 using codecrafters_redis.BuildingBlocks.DB;
 using codecrafters_redis.BuildingBlocks.Storage;
@@ -9,15 +10,29 @@ public class Initiator
     private readonly ServerConfiguration _configuration;
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
+    private readonly IMasterClient _masterClient;
     
-    public Initiator(ServerConfiguration configuration, InMemoryStorage storage, WatchDog watchDog)
+    public Initiator(ServerConfiguration configuration, InMemoryStorage storage, WatchDog watchDog, IMasterClient masterClient)
     {
         _configuration = configuration;
         _storage = storage;
         _watchDog = watchDog;
+        _masterClient = masterClient;
     }
 
     public async Task InitializeAsync()
+    {
+        await RehydrateStoreStateAsync();
+
+        if (_configuration.Role.Equals("slave", StringComparison.CurrentCultureIgnoreCase))
+        {
+            Console.WriteLine("Sending master a request");
+            var result = await _masterClient.Ping();
+            Console.WriteLine($"Response {result.Successed}");
+        }
+    }
+
+    private async Task RehydrateStoreStateAsync()
     {
         if (string.IsNullOrEmpty(_configuration.Dir) || string.IsNullOrEmpty(_configuration.DbFileName))
         {

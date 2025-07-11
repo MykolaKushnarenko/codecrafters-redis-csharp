@@ -1,4 +1,5 @@
 using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks.Communication;
 using codecrafters_redis.BuildingBlocks.HandlerFactory;
 using codecrafters_redis.BuildingBlocks.Handlers;
 using codecrafters_redis.BuildingBlocks.Helpers;
@@ -15,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<WatchDog>();
         services.AddSingleton<IMediator, Mediator>();
         services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
+        services.AddSingleton<IMasterClient, MasterClient>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
