@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using codecrafters_redis.BuildingBlocks;
-using codecrafters_redis.BuildingBlocks.DB;
+using codecrafters_redis.BuildingBlocks.Configurations;
 using codecrafters_redis.BuildingBlocks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,8 +12,11 @@ var provider = serviceCollection.AddBuildingBlocks(args).BuildServiceProvider();
 
 var initeiator = provider.GetRequiredService<Initiator>();
 await initeiator.InitializeAsync();
+
+var configuration = provider.GetRequiredService<ServerConfiguration>();
+
 // Uncomment this block to pass the first stage
-var server = new TcpListener(IPAddress.Any, 6379);
+var server = new TcpListener(IPAddress.Any, configuration.Port);
 server.Start();
 
 while (true)

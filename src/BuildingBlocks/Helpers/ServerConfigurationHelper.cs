@@ -21,6 +21,11 @@ public static class ServerConfigurationHelper
                 {
                     configuration.DbFileName = args[i+1];
                 }
+
+                if (args[i].Equals("--port", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    configuration.Port = int.Parse(args[i+1]);
+                }
             }
         }
 
