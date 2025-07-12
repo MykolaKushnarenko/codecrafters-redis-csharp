@@ -17,7 +17,7 @@ public class SetCommandHandler : ICommandHandler<Command>
     
     public string HandlingCommandName => Constants.SetCommand;
 
-    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var key = command.Arguments[0].ToString();
         var value = command.Arguments[1].ToString();
@@ -29,7 +29,7 @@ public class SetCommandHandler : ICommandHandler<Command>
         }
         
         _storage.Set(key!, value!);
-
-        return Task.FromResult(Encoding.UTF8.GetBytes(Constants.OkResponse));
+        
+        return Task.FromResult<CommandResult>(SimpleStringResult.Create(Constants.OkResponse));
     }
 }

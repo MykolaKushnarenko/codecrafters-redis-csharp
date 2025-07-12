@@ -7,10 +7,8 @@ public class EchoCommandHandler : ICommandHandler<Command>
 {
     public string HandlingCommandName => Constants.EchoCommand;
     
-    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        var response = $"${command.Arguments[0].ToString()!.Length}{Constants.EOL}{command.Arguments[0]}{Constants.EOL}";
-        
-        return Task.FromResult(Encoding.UTF8.GetBytes(response));
+        return Task.FromResult<CommandResult>(BulkStringResult.Create(command.Arguments[0].ToString()));
     }
 }

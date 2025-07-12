@@ -1,32 +1,19 @@
-using System.Net.Sockets;
 using System.Text;
-using codecrafters_redis.BuildingBlocks.Parsers;
 
-namespace codecrafters_redis;
+namespace codecrafters_redis.BuildingBlocks.Parsers;
 
 public static class ProtocolParser
 {
-    // *2\r\n$4\r\nECHO\r\n$3\r\nhey\r\n
-
     public static ProtocolParseResult? Parse(Stream input)
     {
         var result = ParseProtocol(input);
 
-        switch (result)
+        return result switch
         {
-            case string command:
-                return new ProtocolParseResult
-                {
-                    Name = command
-                };
-            case object[] array:
-                return new ProtocolParseResult
-                {
-                    Name = array[0].ToString(),
-                    Arguments = array[1..]
-                };
-            default: return null;
-        }
+            string command => new ProtocolParseResult { Name = command },
+            object[] array => new ProtocolParseResult { Name = array[0].ToString()!, Arguments = array[1..] },
+            _ => null
+        };
     }
     
     public static object ParseProtocol(Stream input)

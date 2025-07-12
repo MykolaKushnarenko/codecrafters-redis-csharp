@@ -15,24 +15,24 @@ public class InfoCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.InfoCommand;
 
-    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var subCommand = command.Arguments[0].ToString();
 
         if (subCommand.Equals("replication", StringComparison.CurrentCultureIgnoreCase))
         {
-            var roleReply = $"role:{_configuration.Role}{Constants.EOL}";
-            var replicationIdReply = "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"; // for now just hardcode
-            var replicationOffsetReply = $"master_repl_offset:0{Constants.EOL}"; // for now just hardcode
-            var reply =
-                $"${roleReply.Length + replicationIdReply.Length + replicationOffsetReply.Length}{Constants.EOL}" +
-                $"{roleReply}" +
-                $"{replicationOffsetReply}"+
-                $"{replicationIdReply}{Constants.EOL}";
+            var sb = new StringBuilder();
             
-            return Task.FromResult(Encoding.UTF8.GetBytes(reply));
+            sb.Append($"role:{_configuration.Role}");
+            sb.Append(Constants.EOL);
+            sb.Append("master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"); // for now just hardcode
+            sb.Append(Constants.EOL);
+            sb.Append("master_repl_offset:0"); // for now just hardcode
+            
+            return Task.FromResult<CommandResult>(BulkStringResult.Create(sb.ToString()));
+
         }
         
-        return Task.FromResult(Encoding.UTF8.GetBytes(Constants.OkResponse));
+        return Task.FromResult<CommandResult>(ErrorResult.Create($"unknown command {subCommand}"));
     }
 }

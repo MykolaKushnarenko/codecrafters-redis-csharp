@@ -1,6 +1,6 @@
 namespace codecrafters_redis.BuildingBlocks.DB;
 
-public class Db
+public class RDbSnapshot
 {
     public string MagicHeader { get; set; }
     

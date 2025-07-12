@@ -48,7 +48,7 @@ public class Initiator
             return;
         }
         
-        var dbs = await DbParser.ParseAsync(file, cancellationToken);
+        var dbs = await RdbParser.ParseAsync(file, cancellationToken);
         var firstDb = dbs.First();
 
         foreach (var keyValue in firstDb.KeyValues)

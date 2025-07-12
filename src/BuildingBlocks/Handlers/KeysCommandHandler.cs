@@ -17,26 +17,19 @@ public class KeysCommandHandler : ICommandHandler<Command>
         _watchDog = watchDog;
     }
     
-    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var subCommand = command.Arguments[0].ToString();
         if (subCommand == "*")
         {
-            var sb = new StringBuilder();
-            
             var allKeys = _storage.GetAllKeys();
             var aliveKeys = allKeys.Where(key => !_watchDog.IsExpired(key)).Select(key => key).ToArray();
 
-            sb.Append($"*{aliveKeys.Length}{Constants.EOL}");
+            var responses = aliveKeys.Select(x=> BulkStringResult.Create(x)).ToArray();
 
-            foreach (var key in aliveKeys)
-            {
-                sb.Append($"${key.Length}{Constants.EOL}{key}{Constants.EOL}");
-            }
-            
-            return Task.FromResult(Encoding.UTF8.GetBytes(sb.ToString()));
+            return Task.FromResult<CommandResult>(ArrayResult.Create(responses));
         }
         
-        return Task.FromResult(Encoding.UTF8.GetBytes(Constants.OkResponse));
+        return Task.FromResult<CommandResult>(ErrorResult.Create($"unknown command {subCommand}"));
     }
 }

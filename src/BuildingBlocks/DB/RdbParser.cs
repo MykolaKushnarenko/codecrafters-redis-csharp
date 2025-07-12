@@ -3,31 +3,31 @@ using System.Text;
 
 namespace codecrafters_redis.BuildingBlocks.DB;
 
-public static class DbParser
+public static class RdbParser
 {
-    public static async Task<List<Db>> ParseAsync(Stream file, CancellationToken cancellationToken)
+    public static async Task<List<RDbSnapshot>> ParseAsync(Stream file, CancellationToken cancellationToken)
     {
-        var dbs = new List<Db>();
+        var dbs = new List<RDbSnapshot>();
         
         var magicHeader = await ParseMagicHeaderAsync(file, cancellationToken);
         var metadata = await ParseMetadataAsync(file, cancellationToken);
 
-        Db db = null;
+        RDbSnapshot rDbSnapshot = null;
         
         var opCode = (byte)file.ReadByte();
-        while (opCode != (byte)RDBOperationCodes.EOF)
+        while (opCode != (byte)RdbOperationCodes.EOF)
         {
-            if (opCode == (byte)RDBOperationCodes.DbSelector)
+            if (opCode == (byte)RdbOperationCodes.DbSelector)
             {
-                db = new Db
+                rDbSnapshot = new RDbSnapshot
                 {
                     MagicHeader = magicHeader,
                     Metadata = metadata,
                 };
                 
-                dbs.Add(db);
+                dbs.Add(rDbSnapshot);
 
-                db.DbNumber = file.ReadByte();
+                rDbSnapshot.DbNumber = file.ReadByte();
                 var sizes = ParseKeyCount(file); // Do we need it? 
             }
             else
@@ -35,11 +35,11 @@ public static class DbParser
                 file.Position--;
                 
                 var (keyValue, keyExpiration) = await ParseDataAsync(file, cancellationToken);
-                db!.KeyValues.Add(keyValue.Key, keyValue.Value);
+                rDbSnapshot!.KeyValues.Add(keyValue.Key, keyValue.Value);
 
                 if (keyExpiration.HasValue)
                 {
-                    db.KeyExpirationTimestamps.Add(keyExpiration.Value.Key, keyExpiration.Value.Value);
+                    rDbSnapshot.KeyExpirationTimestamps.Add(keyExpiration.Value.Key, keyExpiration.Value.Value);
                 }
             }
             
@@ -57,14 +57,14 @@ public static class DbParser
         
         DateTimeOffset? expirationTime = null;
         
-        if ((RDBOperationCodes)opcode == RDBOperationCodes.ExpSec)
+        if ((RdbOperationCodes)opcode == RdbOperationCodes.ExpSec)
         {
             var secondsInBytes = new byte[4];
             await stream.ReadExactlyAsync(secondsInBytes, cancellationToken);
             var seconds = BinaryPrimitives.ReadInt32LittleEndian(secondsInBytes);
             expirationTime = DateTime.UnixEpoch.AddSeconds(seconds);
         }
-        else if ((RDBOperationCodes)opcode == RDBOperationCodes.ExpMilSec)
+        else if ((RdbOperationCodes)opcode == RdbOperationCodes.ExpMilSec)
         {
             var milsecInBytes = new byte[8];
             await stream.ReadExactlyAsync(milsecInBytes, cancellationToken);
@@ -89,7 +89,7 @@ public static class DbParser
     private static async Task<KeyValuePair<string, object>> ExtractKeyValue(Stream stream, CancellationToken cancellationToken)
     {
         var opcode = (byte)stream.ReadByte();
-        if (opcode == (byte)RDBTypes.StringEncoding)
+        if (opcode == (byte)RdbTypes.StringEncoding)
         {
             var key = await ReadKeyAsync(stream, cancellationToken);
             var valueLength = await GetLengthAsync(stream, cancellationToken);
@@ -107,7 +107,7 @@ public static class DbParser
     private static (int keyValueCount, int keyExpirationTimeCount) ParseKeyCount(Stream stream)
     {
         var opcode = stream.ReadByte();
-        if (opcode == (byte)RDBOperationCodes.Resizedb)
+        if (opcode == (byte)RdbOperationCodes.Resizedb)
         {
             return (stream.ReadByte(), stream.ReadByte());
         }
@@ -119,14 +119,14 @@ public static class DbParser
     private static async Task<Dictionary<string, string>> ParseMetadataAsync(Stream stream, CancellationToken cancellationToken)
     {
         var metadata = new Dictionary<string, string>();
-        var isAuxiliary = stream.ReadByte() == (byte)RDBOperationCodes.Auxiliary;
+        var isAuxiliary = stream.ReadByte() == (byte)RdbOperationCodes.Auxiliary;
         while (isAuxiliary)
         {
             var key = await ReadKeyAsync(stream, cancellationToken);
             var value = await ReadStringValueAsync(stream, cancellationToken);
 
             metadata.Add(key, value);
-            isAuxiliary = stream.ReadByte() == (byte)RDBOperationCodes.Auxiliary;
+            isAuxiliary = stream.ReadByte() == (byte)RdbOperationCodes.Auxiliary;
         }
 
         stream.Position--; // we encounter next DbSelector
@@ -147,7 +147,7 @@ public static class DbParser
     {
         var valueStartPosition = stream.Position;
         var valueEndPosition = 0;
-        while (!Enum.IsDefined(typeof(RDBOperationCodes), (byte)stream.ReadByte()))
+        while (!Enum.IsDefined(typeof(RdbOperationCodes), (byte)stream.ReadByte()))
         {
             valueEndPosition++;
         }

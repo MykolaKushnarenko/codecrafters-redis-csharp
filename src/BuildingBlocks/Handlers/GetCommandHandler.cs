@@ -1,4 +1,3 @@
-using System.Text;
 using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.Storage;
 
@@ -17,19 +16,18 @@ public class GetCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.GetCommand;
 
-    public Task<byte[]> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var key = command.Arguments[0].ToString(); 
         
         if (_watchDog.IsExpired(key!))
         {
             _storage.Remove(key!);
-            return Task.FromResult(Encoding.UTF8.GetBytes(Constants.BulkStringEmptyResponse));
+            return Task.FromResult<CommandResult>(new BulkStringEmptyResult());
         }
         
         var value = _storage.Get(key!);
 
-        return Task.FromResult(
-            Encoding.UTF8.GetBytes($"${value.ToString()!.Length}{Constants.EOL}{value}{Constants.EOL}"));
+        return Task.FromResult<CommandResult>(BulkStringResult.Create(value.ToString()!));
     }
 }

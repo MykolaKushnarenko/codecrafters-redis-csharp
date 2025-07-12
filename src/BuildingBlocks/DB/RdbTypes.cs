@@ -1,6 +1,6 @@
 namespace codecrafters_redis.BuildingBlocks.DB;
 
-internal enum RDBTypes
+internal enum RdbTypes
 {
     StringEncoding = 0,
     ListEncoding = 1,

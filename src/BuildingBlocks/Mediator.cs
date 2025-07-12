@@ -1,7 +1,7 @@
 using System.Text;
 using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.HandlerFactory;
-using Microsoft.Extensions.DependencyInjection;
+using codecrafters_redis.BuildingBlocks.Parsers;
 
 namespace codecrafters_redis.BuildingBlocks;
 
@@ -30,20 +30,27 @@ public class Mediator : IMediator
                 break;
             }
 
-            byte[] response;
-            
-            var handler = _commandHandlerFactory.GetHandler(result.Name);
-            if (handler != null)
+            await ProcessIncomingCommandAsync(context, cancellationToken, result);
+        }
+    }
+
+    private async Task ProcessIncomingCommandAsync(Context context, CancellationToken cancellationToken,
+        ProtocolParseResult result)
+    {
+        var handler = _commandHandlerFactory.GetHandler(result.Name);
+        if (handler != null)
+        {
+            var command = new Command { Arguments = result.Arguments };
+            var commandResult = await handler.HandleAsync(command, cancellationToken);
+            foreach (var rawResponse in CommandResultConverter.Convert(commandResult))
             {
-                var command = new Command { Arguments = result.Arguments };
-                response = await handler.HandleAsync(command, cancellationToken);
+                await context.IncomingSocket.SendAsync(rawResponse, cancellationToken);
             }
-            else
-            {
-                response = Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n");
-            }
-            
-            await context.IncomingSocket.SendAsync(response, cancellationToken);
+        }
+        else
+        {
+            await context.IncomingSocket.SendAsync(Encoding.UTF8.GetBytes($"-ERR unknown command {result.Name}\r\n"),
+                cancellationToken);
         }
     }
 }
