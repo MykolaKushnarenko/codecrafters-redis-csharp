@@ -1,5 +1,5 @@
-using System.Text;
 using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks.Configurations;
 using codecrafters_redis.BuildingBlocks.Storage;
 
 namespace codecrafters_redis.BuildingBlocks.Handlers;
@@ -8,17 +8,26 @@ public class SetCommandHandler : ICommandHandler<Command>
 {
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
+    private readonly ReplicationManager _replicationManager;
+    private readonly ServerConfiguration _configuration;
 
-    public SetCommandHandler(InMemoryStorage storage, WatchDog watchDog)
+    public SetCommandHandler(InMemoryStorage storage, WatchDog watchDog, ReplicationManager replicationManager, ServerConfiguration configuration)
     {
         _storage = storage;
         _watchDog = watchDog;
+        _replicationManager = replicationManager;
+        _configuration = configuration;
     }
     
     public string HandlingCommandName => Constants.SetCommand;
 
-    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
+        if (_configuration.Role == "master")
+        {
+            await _replicationManager.ReplicateAsync(command.InitialCommandBytes, cancellationToken);
+        }
+        
         var key = command.Arguments[0].ToString();
         var value = command.Arguments[1].ToString();
 
@@ -30,6 +39,6 @@ public class SetCommandHandler : ICommandHandler<Command>
         
         _storage.Set(key!, value!);
         
-        return Task.FromResult<CommandResult>(SimpleStringResult.Create(Constants.OkResponse));
+        return SimpleStringResult.Create(Constants.OkResponse);
     }
 }

@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMediator, Mediator>();
         services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
         services.AddSingleton<IMasterClient, MasterClient>();
+        services.AddSingleton<ReplicationManager>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
