@@ -10,7 +10,7 @@ public class ArrayResult : CommandResult
         Items = new List<CommandResult>(items);
     }
     
-    public static ArrayResult Create(CommandResult[] items)
+    public static ArrayResult Create(params CommandResult[] items)
     {
         return new ArrayResult(items);
     }

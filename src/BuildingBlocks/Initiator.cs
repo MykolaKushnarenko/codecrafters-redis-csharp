@@ -58,9 +58,18 @@ public class Initiator
                     {
                         continue;
                     }
+                    
+                    
                     var raspProtocolData = await RaspProtocolParser.ParseCommand(_masterClient.Network);
                     
-                    await _mediator.ProcessAsync(raspProtocolData!, cancellationToken);
+                    var result = await _mediator.ProcessAsync(raspProtocolData!, cancellationToken);
+                    
+                    foreach (var rawResponse in RaspConverter.Convert(result))
+                    {
+                        Console.WriteLine("Sending back to master");
+                        await _masterClient.Network.WriteAsync(rawResponse, cancellationToken);
+                        await _masterClient.Network.FlushAsync(cancellationToken);
+                    }
                 }
                 catch (Exception e)
                 {

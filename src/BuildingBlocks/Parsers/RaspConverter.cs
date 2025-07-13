@@ -49,7 +49,7 @@ public static class RaspConverter
 
     private static byte[] SerializeArray(IEnumerable<CommandResult> items)
     {
-        var serializedItems = items.Where(x => x.Type != CommandResultType.Pluged).Select(x=> Convert(x).First());
+        var serializedItems = items.Where(x => x.Type != CommandResultType.MasterReplication).Select(x=> Convert(x).First());
         var flattenedArray = serializedItems.SelectMany(bytes => bytes).ToArray();
 
         return Encoding.UTF8.GetBytes($"*{items.Count()}{Constants.EOL}")

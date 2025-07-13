@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using codecrafters_redis.BuildingBlocks.Commands;
 using codecrafters_redis.BuildingBlocks.Configurations;
 using codecrafters_redis.BuildingBlocks.Parsers;
@@ -79,6 +80,7 @@ public class Server
             
                 foreach (var rawResponse in RaspConverter.Convert(result))
                 {
+                    Console.WriteLine("Sending back to master");
                     await networkStream.WriteAsync(rawResponse, cancellationToken);
                     await networkStream.FlushAsync(cancellationToken);
                 }
