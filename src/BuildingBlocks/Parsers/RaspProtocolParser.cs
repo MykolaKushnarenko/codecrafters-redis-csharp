@@ -2,28 +2,49 @@ using System.Text;
 
 namespace codecrafters_redis.BuildingBlocks.Parsers;
 
-public static class ProtocolParser
+public static class RaspProtocolParser
 {
-    public static ProtocolParseResult? Parse(Stream input)
+    public static async Task<byte[]> ParseBinaryAsync(Stream input)
     {
-        var result = ParseProtocol(input);
+        byte firstByte = (byte)input.ReadByte();
+        if (firstByte != RaspTypes.BulkStrings)
+        {
+            throw new InvalidOperationException("Invalid binary protocol header");
+        }
+        
+        var length = int.Parse(ReadLine(input));
+        var bulkString = new byte[length];
+        await input.ReadExactlyAsync(bulkString, 0, length);
+        
+        return bulkString;
+    }
+    
+    public static async Task<RaspProtocolData?> ParseCommand(Stream input)
+    {
+        var result = await ParseProtocol(input);
 
+        if (result is null)
+        {
+            Console.WriteLine("Invalid command");
+        }
+        
         return result switch
         {
-            string command => new ProtocolParseResult { Name = command },
-            object[] array => new ProtocolParseResult { Name = array[0].ToString()!, Arguments = array[1..] },
+            string command => new RaspProtocolData { Name = command },
+            object[] array => new RaspProtocolData { Name = array[0].ToString()!, Arguments = array[1..] },
             _ => null
         };
     }
-    
-    public static object ParseProtocol(Stream input)
+
+    private static async Task<object> ParseProtocol(Stream input)
     {
-        byte firstByte = (byte)input.ReadByte();
-        switch (firstByte)
+        var buffer = new byte[1];
+        await input.ReadExactlyAsync(buffer);
+        switch (buffer[0])
         {
-            case RedisType.SimpleStrings:
+            case RaspTypes.SimpleStrings:
                 return ReadLine(input);
-            case RedisType.Integers:
+            case RaspTypes.Integers:
             {
                 if (int.TryParse(ReadLine(input), out var result))
                 {
@@ -32,18 +53,18 @@ public static class ProtocolParser
 
                 break;
             }
-            case RedisType.BulkStrings:
+            case RaspTypes.BulkStrings:
             {
                 var result = ReadLine(input);
                 var length = int.Parse(result);
                 var bulkString = new byte[length];
-                input.ReadExactly(bulkString, 0, length);
-                
-                input.Position+=2; // skip \r\n
+                await input.ReadExactlyAsync(bulkString, 0, length);
+
+                await input.ReadExactlyAsync(new byte[2]);
 
                 return Encoding.UTF8.GetString(bulkString);
             }
-            case RedisType.Arrays:
+            case RaspTypes.Arrays:
             {
                 var arrayLengthsString = ReadLine(input);
 
@@ -56,7 +77,7 @@ public static class ProtocolParser
 
                 for (int i = 0; i < arrayLengths; i++)
                 {
-                    var arrayItem = ParseProtocol(input);
+                    var arrayItem = await ParseProtocol(input);
                     array[i] = arrayItem;
                 }
 
@@ -64,6 +85,7 @@ public static class ProtocolParser
             }
         }
 
+        Console.WriteLine($"Unknown protocol type: {buffer[0]}");
         return null;
     }
     

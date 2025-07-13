@@ -1,6 +1,6 @@
 namespace codecrafters_redis.BuildingBlocks.Parsers;
 
-public static class RedisType
+public static class RaspTypes
 {
     public const byte SimpleStrings = (byte)'+';
     public const byte Erorrs = (byte)'-';

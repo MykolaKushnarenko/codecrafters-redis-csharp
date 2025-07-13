@@ -1,6 +1,7 @@
 using codecrafters_redis.BuildingBlocks.Communication;
 using codecrafters_redis.BuildingBlocks.Configurations;
 using codecrafters_redis.BuildingBlocks.DB;
+using codecrafters_redis.BuildingBlocks.Parsers;
 using codecrafters_redis.BuildingBlocks.Storage;
 
 namespace codecrafters_redis.BuildingBlocks;
@@ -11,13 +12,15 @@ public class Initiator
     private readonly InMemoryStorage _storage;
     private readonly WatchDog _watchDog;
     private readonly IMasterClient _masterClient;
+    private readonly IMediator _mediator;
     
-    public Initiator(ServerConfiguration configuration, InMemoryStorage storage, WatchDog watchDog, IMasterClient masterClient)
+    public Initiator(ServerConfiguration configuration, InMemoryStorage storage, WatchDog watchDog, IMasterClient masterClient, IMediator mediator)
     {
         _configuration = configuration;
         _storage = storage;
         _watchDog = watchDog;
         _masterClient = masterClient;
+        _mediator = mediator;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -26,11 +29,45 @@ public class Initiator
 
         if (_configuration.Role.Equals("slave", StringComparison.CurrentCultureIgnoreCase))
         {
-            var result = await _masterClient.SendPing(cancellationToken);
-            await _masterClient.SendRepConfigListeningPort(cancellationToken);
-            await _masterClient.SendRepConfigCapa(cancellationToken);
-            await _masterClient.SendPSync(cancellationToken);
+            await SendInitialHandshakeAsync(cancellationToken);
         }
+    }
+
+    private async Task SendInitialHandshakeAsync(CancellationToken cancellationToken)
+    { 
+        await _masterClient.SendPing(cancellationToken);
+        await _masterClient.SendRepConfigListeningPort(cancellationToken);
+        await _masterClient.SendRepConfigCapa(cancellationToken);
+        await _masterClient.SendPSync(cancellationToken);
+        await _masterClient.ReceiveRdbFileAsync(cancellationToken);
+
+        //read db.rdb file
+
+        _ = Task.Run(async () =>
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    if (!_masterClient.Network.Socket.Connected)
+                    {
+                        break;
+                    }
+                    
+                    if (!_masterClient.Network.DataAvailable)
+                    {
+                        continue;
+                    }
+                    var raspProtocolData = await RaspProtocolParser.ParseCommand(_masterClient.Network);
+                    
+                    await _mediator.ProcessAsync(raspProtocolData!, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }, cancellationToken);
     }
 
     private async Task RehydrateStoreStateAsync(CancellationToken cancellationToken)

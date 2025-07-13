@@ -3,7 +3,7 @@ using codecrafters_redis.BuildingBlocks.Commands;
 
 namespace codecrafters_redis.BuildingBlocks.Parsers;
 
-public static class CommandResultConverter
+public static class RaspConverter
 {
     public static IEnumerable<byte[]> Convert(CommandResult result)
     {

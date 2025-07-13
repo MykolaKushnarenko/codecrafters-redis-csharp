@@ -4,5 +4,5 @@ namespace codecrafters_redis.BuildingBlocks;
 
 public class Context
 {
-    public Socket IncomingSocket { get; set; }
+    public NetworkStream IncomingSocket { get; set; }
 }

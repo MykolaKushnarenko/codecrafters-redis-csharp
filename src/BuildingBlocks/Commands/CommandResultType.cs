@@ -9,4 +9,5 @@ public enum CommandResultType
     Array,         // E.g., "*2\r\n$3\r\nfoo\r\n$3\r\nbar"
     Stream,        // For streaming incremental responses
     Pluged,        // For PLUGDED responses
+    MasterReplication
 }

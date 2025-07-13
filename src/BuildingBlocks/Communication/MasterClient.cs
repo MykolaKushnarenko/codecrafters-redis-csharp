@@ -9,6 +9,7 @@ namespace codecrafters_redis.BuildingBlocks.Communication;
 public class MasterClient : IMasterClient
 {
     private readonly Socket _socket;
+    private NetworkStream _networkStream;
     private readonly ServerConfiguration _configuration;
     
     public MasterClient(ServerConfiguration configuration)
@@ -16,7 +17,9 @@ public class MasterClient : IMasterClient
         _configuration = configuration;
         _socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
     }
-    
+
+    public NetworkStream Network => _networkStream;
+
     public async Task<CommunicationResult> SendPing(CancellationToken cancellationToken)
     {
         await TryConnectAsync(cancellationToken);
@@ -24,9 +27,9 @@ public class MasterClient : IMasterClient
         var pingCommand = $"*1{Constants.EOL}${Constants.PingCommand.Length}{Constants.EOL}{Constants.PingCommand}{Constants.EOL}";
         await _socket.SendAsync(Encoding.UTF8.GetBytes(pingCommand), cancellationToken);
 
-        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+        var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
-        if (parsedResult.Name.Equals("PONG"))
+        if (raspProtocolData.Name.Equals("PONG"))
         {
             return new CommunicationResult { Successed = true };
         }
@@ -34,14 +37,18 @@ public class MasterClient : IMasterClient
         return new CommunicationResult() { Successed = false };
     }
 
-    private async Task<ProtocolParseResult?> ReceiveInternalAsync(CancellationToken cancellationToken)
+    private async Task<RaspProtocolData?> ReceiveInternalAsync(CancellationToken cancellationToken)
     {
-        var buffer = new byte[1024];
-        await _socket.ReceiveAsync(buffer, cancellationToken);
-
-        using var memoryBuffer = new MemoryStream(buffer);
-        var parsedResult = ProtocolParser.Parse(memoryBuffer);
-        return parsedResult;
+        try
+        {
+            var raspProtocolData = await RaspProtocolParser.ParseCommand(_networkStream);
+            return raspProtocolData;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<CommunicationResult> SendRepConfigCapa(CancellationToken cancellationToken)
@@ -50,11 +57,12 @@ public class MasterClient : IMasterClient
         var subCommand = "listening-port";
         var command = "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n";
         
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _networkStream.FlushAsync(cancellationToken);
 
-        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+        var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
-        if (parsedResult.Name.Equals("OK"))
+        if (raspProtocolData.Name.Equals("OK"))
         {
             return new CommunicationResult { Successed = true };
         }
@@ -68,16 +76,31 @@ public class MasterClient : IMasterClient
 
         var command = "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n";
         
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
-
-        var parsedResult = await ReceiveInternalAsync(cancellationToken);
+        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _networkStream.FlushAsync(cancellationToken);
         
-        if (parsedResult.Name.Equals("OK"))
+        var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
+        
+        if (raspProtocolData.Name.Equals("OK"))
         {
             return new CommunicationResult { Successed = true };
         }
 
         return new CommunicationResult() { Successed = false };
+    }
+
+    public async Task<byte[]> ReceiveRdbFileAsync(CancellationToken cancellationToken)
+    { 
+        try
+        {
+            var receiveRdbFile = await RaspProtocolParser.ParseBinaryAsync(_networkStream);
+            return receiveRdbFile;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        return Enumerable.Empty<byte>().ToArray();
     }
 
     public async Task<CommunicationResult> SendRepConfigListeningPort(CancellationToken cancellationToken)
@@ -90,11 +113,12 @@ public class MasterClient : IMasterClient
                       $"${subCommand.Length}{Constants.EOL}{subCommand}{Constants.EOL}" +
                       $"${_configuration.Port.ToString().Length}{Constants.EOL}{_configuration.Port}{Constants.EOL}";
         
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _networkStream.FlushAsync(cancellationToken);
+        
+        var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
-        var parsedResult = await ReceiveInternalAsync(cancellationToken);
-
-        if (parsedResult.Name.Equals("OK"))
+        if (raspProtocolData.Name.Equals("OK"))
         {
             return new CommunicationResult { Successed = true };
         }
@@ -115,6 +139,7 @@ public class MasterClient : IMasterClient
         try
         {
             await _socket.ConnectAsync(ipEndPoint, cancellationToken);
+            _networkStream = new NetworkStream(_socket, FileAccess.ReadWrite);
         }
         catch (Exception e)
         {
