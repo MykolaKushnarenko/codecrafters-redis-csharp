@@ -19,13 +19,13 @@ public static class RaspProtocolParser
         return bulkString;
     }
     
-    public static async Task<RaspProtocolData?> ParseCommand(Stream input)
+    public static async Task<RaspProtocolData?> ParseCommand(Stream input, CancellationToken cancellationToken)
     {
-        var result = await ParseProtocol(input);
+        var result = await ParseProtocol(input, cancellationToken);
 
         if (result is null)
         {
-            Console.WriteLine("Invalid command");
+            throw new InvalidOperationException("Invalid command.");
         }
         
         return result switch
@@ -36,10 +36,10 @@ public static class RaspProtocolParser
         };
     }
 
-    private static async Task<object> ParseProtocol(Stream input)
+    private static async Task<object> ParseProtocol(Stream input, CancellationToken cancellationToken)
     {
         var buffer = new byte[1];
-        await input.ReadExactlyAsync(buffer);
+        await input.ReadExactlyAsync(buffer, cancellationToken);
         switch (buffer[0])
         {
             case RaspTypes.SimpleStrings:
@@ -58,9 +58,9 @@ public static class RaspProtocolParser
                 var result = ReadLine(input);
                 var length = int.Parse(result);
                 var bulkString = new byte[length];
-                await input.ReadExactlyAsync(bulkString, 0, length);
+                await input.ReadExactlyAsync(bulkString, 0, length, cancellationToken);
 
-                await input.ReadExactlyAsync(new byte[2]);
+                await input.ReadExactlyAsync(new byte[2], cancellationToken);
 
                 return Encoding.UTF8.GetString(bulkString);
             }
@@ -77,7 +77,7 @@ public static class RaspProtocolParser
 
                 for (int i = 0; i < arrayLengths; i++)
                 {
-                    var arrayItem = await ParseProtocol(input);
+                    var arrayItem = await ParseProtocol(input, cancellationToken);
                     array[i] = arrayItem;
                 }
 
@@ -85,8 +85,7 @@ public static class RaspProtocolParser
             }
         }
 
-        Console.WriteLine($"Unknown protocol type: {buffer[0]}");
-        return null;
+        throw new InvalidOperationException($"Unknown protocol type: {buffer[0]}");
     }
     
     private static string ReadLine(Stream stream)

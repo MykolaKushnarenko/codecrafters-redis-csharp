@@ -12,9 +12,30 @@ public class WaitCommandHandler : ICommandHandler<Command>
     }
 
     public string HandlingCommandName => Constants.WaitCommand;
-    
-    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
+
+    public async Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        return Task.FromResult<CommandResult>(IntegerResult.Create(_replicationManager.NumberOfReplicas));
+        var numberOfReplicatesToWaitFor = int.Parse(command.Arguments[0].ToString());
+        var ms = int.Parse(command.Arguments[1].ToString());
+        var dateTimeOffsetWait = DateTimeOffset.UtcNow.AddMilliseconds(ms);
+
+        if (_replicationManager.WriteCommandOffset == 0)
+        {
+            return IntegerResult.Create(_replicationManager.NumberOfReplicas);
+        }
+
+        await _replicationManager.GetAcksAsync(cancellationToken);
+
+        while (DateTimeOffset.UtcNow < dateTimeOffsetWait)
+        {
+            if (_replicationManager.SyncedReplicasCount >= numberOfReplicatesToWaitFor)
+            {
+                break;
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(10), cancellationToken);
+        }
+
+        return IntegerResult.Create(_replicationManager.SyncedReplicasCount);
     }
 }

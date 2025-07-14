@@ -47,7 +47,7 @@ public class MasterClient : IMasterClient
     {
         try
         {
-            var raspProtocolData = await RaspProtocolParser.ParseCommand(_measuredNetworkStream);
+            var raspProtocolData = await RaspProtocolParser.ParseCommand(_measuredNetworkStream, cancellationToken);
             return raspProtocolData;
         }
         catch (Exception e)

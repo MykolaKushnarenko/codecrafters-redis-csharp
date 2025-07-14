@@ -31,15 +31,13 @@ public class RepconfCommandHandler : ICommandHandler<Command>
 
         if (subCommand.Equals("GETACK", StringComparison.CurrentCultureIgnoreCase))
         {
-            if (_configuration.Role == "master")
-            {
-                var response = await _replicationManager.GetAcksAsync(cancellationToken);
-                return ArrayResult.Create(BulkStringResult.Create(response.Name), BulkStringResult.Create(response.Arguments[0].ToString()!), BulkStringResult.Create(response.Arguments[1].ToString()!));
-            }
-            else
-            {
-                return ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create(_acknowledge.TotalProcessedCommandBytes.ToString()));
-            }
+            return ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create(_acknowledge.TotalProcessedCommandBytes.ToString()));
+        }
+
+        if (subCommand.Equals("ACK", StringComparison.CurrentCultureIgnoreCase))
+        {
+            _replicationManager.MarkReplicaAsSynced();
+            return new MasterReplicationResult();
         }
         
         return ErrorResult.Create($"unknown command {subCommand}");

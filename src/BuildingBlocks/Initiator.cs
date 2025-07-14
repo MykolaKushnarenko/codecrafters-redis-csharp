@@ -67,7 +67,7 @@ public class Initiator
                         continue;
                     }
                     
-                    var raspProtocolData = await RaspProtocolParser.ParseCommand(_masterClient.Network);
+                    var raspProtocolData = await RaspProtocolParser.ParseCommand(_masterClient.Network, cancellationToken);
                     
                     var result = await _mediator.ProcessAsync(raspProtocolData!, cancellationToken);
                     

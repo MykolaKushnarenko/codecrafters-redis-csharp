@@ -19,7 +19,7 @@ public class Mediator : IMediator
         
         if (handler == null) return ErrorResult.Create($"unknown command {raspProtocol.Name}");
         
-        var command = new Command { Arguments = raspProtocol.Arguments };
+        var command = new Command { Arguments = raspProtocol.Arguments, CommandByteLength = raspProtocol.CommandByteLength};
         return await handler.HandleAsync(command, cancellationToken);
     }
 }

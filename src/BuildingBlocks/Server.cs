@@ -62,7 +62,7 @@ public class Server
             await using var measuredNetworkStream = new MeasuredNetworkStream(networkStream);
             while (!cancellationToken.IsCancellationRequested || !socket.Connected)
             {
-                var raspProtocolData = await RaspProtocolParser.ParseCommand(measuredNetworkStream);
+                var raspProtocolData = await RaspProtocolParser.ParseCommand(measuredNetworkStream, cancellationToken);
                 
                 if (raspProtocolData.Name == Constants.PsyncCommand && _configuration.Role == "master")
                 {
@@ -73,7 +73,9 @@ public class Server
                 {
                     continue;
                 }
-            
+
+                raspProtocolData.CommandByteLength = measuredNetworkStream.ProcessedCommandBytes;
+                
                 var result = await _mediator.ProcessAsync(raspProtocolData, cancellationToken);
             
                 foreach (var rawResponse in RaspConverter.Convert(result).Where(x => x.Length > 0))
