@@ -14,19 +14,22 @@ public class Server
     private readonly ApplicationLifetime _applicationLifetime;
     private readonly Initiator _initiator;
     private readonly ReplicationManager _replicationManager;
+    private readonly AcknowledgeCommandTracker _acknowledge;
 
     public Server(
         IMediator mediator, 
         ServerConfiguration configuration, 
         ApplicationLifetime applicationLifetime,
         Initiator initiator, 
-        ReplicationManager replicationManager)
+        ReplicationManager replicationManager, 
+        AcknowledgeCommandTracker acknowledge)
     {
         _mediator = mediator;
         _configuration = configuration;
         _applicationLifetime = applicationLifetime;
         _initiator = initiator;
         _replicationManager = replicationManager;
+        _acknowledge = acknowledge;
     }
 
     public async Task RunAsync()
@@ -53,13 +56,13 @@ public class Server
     
     private async Task HandleClientRequest(Socket socket, CancellationToken cancellationToken)
     {
-        
         try
         {
-            var networkStream = new NetworkStream(socket, FileAccess.ReadWrite);
-            while (!cancellationToken.IsCancellationRequested)
+            await using var networkStream = new NetworkStream(socket, FileAccess.ReadWrite);
+            await using var measuredNetworkStream = new MeasuredNetworkStream(networkStream);
+            while (!cancellationToken.IsCancellationRequested || !socket.Connected)
             {
-                var raspProtocolData = await RaspProtocolParser.ParseCommand(networkStream);
+                var raspProtocolData = await RaspProtocolParser.ParseCommand(measuredNetworkStream);
                 
                 if (raspProtocolData.Name == Constants.PsyncCommand && _configuration.Role == "master")
                 {
@@ -72,18 +75,16 @@ public class Server
                 }
             
                 var result = await _mediator.ProcessAsync(raspProtocolData, cancellationToken);
-                
-                if (result is MasterReplicationResult)
-                {
-                    return;
-                }
             
-                foreach (var rawResponse in RaspConverter.Convert(result))
+                foreach (var rawResponse in RaspConverter.Convert(result).Where(x => x.Length > 0))
                 {
                     Console.WriteLine("Sending back to master");
-                    await networkStream.WriteAsync(rawResponse, cancellationToken);
-                    await networkStream.FlushAsync(cancellationToken);
+                    await measuredNetworkStream.WriteAsync(rawResponse, cancellationToken);
+                    await measuredNetworkStream.FlushAsync(cancellationToken);
                 }
+                
+                _acknowledge.AddProcessedCommandBytes(measuredNetworkStream.ProcessedCommandBytes);
+                measuredNetworkStream.Reset();
             }
         }
         catch (Exception e)

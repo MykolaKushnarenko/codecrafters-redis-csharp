@@ -13,14 +13,21 @@ public class Initiator
     private readonly WatchDog _watchDog;
     private readonly IMasterClient _masterClient;
     private readonly IMediator _mediator;
-    
-    public Initiator(ServerConfiguration configuration, InMemoryStorage storage, WatchDog watchDog, IMasterClient masterClient, IMediator mediator)
+    private readonly AcknowledgeCommandTracker _tracker;
+
+    public Initiator(
+        ServerConfiguration configuration, 
+        InMemoryStorage storage, 
+        WatchDog watchDog,
+        IMasterClient masterClient, 
+        IMediator mediator, AcknowledgeCommandTracker tracker)
     {
         _configuration = configuration;
         _storage = storage;
         _watchDog = watchDog;
         _masterClient = masterClient;
         _mediator = mediator;
+        _tracker = tracker;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -41,6 +48,7 @@ public class Initiator
         await _masterClient.SendPSync(cancellationToken);
         await _masterClient.ReceiveRdbFileAsync(cancellationToken);
 
+        _masterClient.Network.Reset();
         //read db.rdb file
 
         _ = Task.Run(async () =>
@@ -49,7 +57,7 @@ public class Initiator
             {
                 try
                 {
-                    if (!_masterClient.Network.Socket.Connected)
+                    if (!_masterClient.IsConnected)
                     {
                         break;
                     }
@@ -59,17 +67,19 @@ public class Initiator
                         continue;
                     }
                     
-                    
                     var raspProtocolData = await RaspProtocolParser.ParseCommand(_masterClient.Network);
                     
                     var result = await _mediator.ProcessAsync(raspProtocolData!, cancellationToken);
                     
-                    foreach (var rawResponse in RaspConverter.Convert(result))
+                    foreach (var rawResponse in RaspConverter.Convert(result).Where(x => x.Length > 0))
                     {
                         Console.WriteLine("Sending back to master");
                         await _masterClient.Network.WriteAsync(rawResponse, cancellationToken);
                         await _masterClient.Network.FlushAsync(cancellationToken);
                     }
+                    
+                    _tracker.AddProcessedCommandBytes(_masterClient.Network.ProcessedCommandBytes);
+                    _masterClient.Network.Reset();
                 }
                 catch (Exception e)
                 {

@@ -10,6 +10,8 @@ public class MasterClient : IMasterClient
 {
     private readonly Socket _socket;
     private NetworkStream _networkStream;
+    private MeasuredNetworkStream _measuredNetworkStream;
+
     private readonly ServerConfiguration _configuration;
     
     public MasterClient(ServerConfiguration configuration)
@@ -18,15 +20,19 @@ public class MasterClient : IMasterClient
         _socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
     }
 
-    public NetworkStream Network => _networkStream;
+    public MeasuredNetworkStream Network => _measuredNetworkStream;
+
+    public bool IsConnected => _socket.Connected;
 
     public async Task<CommunicationResult> SendPing(CancellationToken cancellationToken)
     {
         await TryConnectAsync(cancellationToken);
         
         var pingCommand = $"*1{Constants.EOL}${Constants.PingCommand.Length}{Constants.EOL}{Constants.PingCommand}{Constants.EOL}";
-        await _socket.SendAsync(Encoding.UTF8.GetBytes(pingCommand), cancellationToken);
-
+        
+        await _measuredNetworkStream.WriteAsync(Encoding.UTF8.GetBytes(pingCommand), cancellationToken);
+        await _measuredNetworkStream.FlushAsync(cancellationToken);
+        
         var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
         if (raspProtocolData.Name.Equals("PONG"))
@@ -41,7 +47,7 @@ public class MasterClient : IMasterClient
     {
         try
         {
-            var raspProtocolData = await RaspProtocolParser.ParseCommand(_networkStream);
+            var raspProtocolData = await RaspProtocolParser.ParseCommand(_measuredNetworkStream);
             return raspProtocolData;
         }
         catch (Exception e)
@@ -57,8 +63,8 @@ public class MasterClient : IMasterClient
         var subCommand = "listening-port";
         var command = "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n";
         
-        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
-        await _networkStream.FlushAsync(cancellationToken);
+        await _measuredNetworkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _measuredNetworkStream.FlushAsync(cancellationToken);
 
         var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
@@ -76,8 +82,8 @@ public class MasterClient : IMasterClient
 
         var command = "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n";
         
-        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
-        await _networkStream.FlushAsync(cancellationToken);
+        await _measuredNetworkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _measuredNetworkStream.FlushAsync(cancellationToken);
         
         var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
         
@@ -93,7 +99,7 @@ public class MasterClient : IMasterClient
     { 
         try
         {
-            var receiveRdbFile = await RaspProtocolParser.ParseBinaryAsync(_networkStream);
+            var receiveRdbFile = await RaspProtocolParser.ParseBinaryAsync(_measuredNetworkStream);
             return receiveRdbFile;
         }
         catch (Exception e)
@@ -113,8 +119,8 @@ public class MasterClient : IMasterClient
                       $"${subCommand.Length}{Constants.EOL}{subCommand}{Constants.EOL}" +
                       $"${_configuration.Port.ToString().Length}{Constants.EOL}{_configuration.Port}{Constants.EOL}";
         
-        await _networkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
-        await _networkStream.FlushAsync(cancellationToken);
+        await _measuredNetworkStream.WriteAsync(Encoding.UTF8.GetBytes(command), cancellationToken);
+        await _measuredNetworkStream.FlushAsync(cancellationToken);
         
         var raspProtocolData = await ReceiveInternalAsync(cancellationToken);
 
@@ -140,6 +146,7 @@ public class MasterClient : IMasterClient
         {
             await _socket.ConnectAsync(ipEndPoint, cancellationToken);
             _networkStream = new NetworkStream(_socket, FileAccess.ReadWrite);
+            _measuredNetworkStream = new MeasuredNetworkStream(_networkStream);
         }
         catch (Exception e)
         {

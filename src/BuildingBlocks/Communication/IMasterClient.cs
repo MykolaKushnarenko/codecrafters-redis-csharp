@@ -4,7 +4,9 @@ namespace codecrafters_redis.BuildingBlocks.Communication;
 
 public interface IMasterClient
 {
-    public NetworkStream Network { get; }
+    public MeasuredNetworkStream Network { get; }
+    
+    public bool IsConnected { get; }
     
     public Task<CommunicationResult> SendPing(CancellationToken cancellationToken);
     

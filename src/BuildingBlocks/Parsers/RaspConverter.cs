@@ -17,7 +17,8 @@ public static class RaspConverter
             StreamResult stream => SerializeStream(stream.Stream),
             TransmissionResult transmission => [transmission.Message],
             BulkStringEmptyResult empty => [Encoding.UTF8.GetBytes($"{empty.Value}{Constants.EOL}")],
-            _ => throw new InvalidOperationException("Unknown CommandResponse type")
+            MasterReplicationResult => [Enumerable.Empty<byte>().ToArray()],
+            _ => throw new InvalidOperationException($"Unknown CommandResponse type: {result.Type}")
         };
     }
 

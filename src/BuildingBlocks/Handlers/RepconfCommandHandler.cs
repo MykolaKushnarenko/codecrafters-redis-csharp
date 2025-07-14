@@ -7,11 +7,13 @@ public class RepconfCommandHandler : ICommandHandler<Command>
 {
     private readonly ReplicationManager _replicationManager;
     private readonly ServerConfiguration _configuration;
+    private readonly AcknowledgeCommandTracker _acknowledge;
     
-    public RepconfCommandHandler(ReplicationManager replicationManager, ServerConfiguration configuration)
+    public RepconfCommandHandler(ReplicationManager replicationManager, ServerConfiguration configuration, AcknowledgeCommandTracker acknowledge)
     {
         _replicationManager = replicationManager;
         _configuration = configuration;
+        _acknowledge = acknowledge;
     }
     
     public string HandlingCommandName => Constants.RepconfCommand;
@@ -36,7 +38,7 @@ public class RepconfCommandHandler : ICommandHandler<Command>
             }
             else
             {
-                return ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create("0"));
+                return ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create(_acknowledge.TotalProcessedCommandBytes.ToString()));
             }
         }
         

@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
         services.AddSingleton<IMasterClient, MasterClient>();
         services.AddSingleton<ReplicationManager>();
+        services.AddSingleton<AcknowledgeCommandTracker>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
