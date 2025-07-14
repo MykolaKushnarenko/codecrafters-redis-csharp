@@ -9,6 +9,8 @@ public class ReplicationManager
 {
     private readonly ConcurrentBag<NetworkStream> _slaveSockets = new();
 
+    public int NumberOfReplicas => _slaveSockets.Count;
+    
     public void AddSlaveForReplication(NetworkStream slave)
     {
         _slaveSockets.Add(slave);
