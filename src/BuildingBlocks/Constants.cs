@@ -16,6 +16,7 @@ public static class Constants
     public const string InfoCommand = "INFO";
     public const string RepconfCommand = "REPLCONF";
     public const string PsyncCommand = "PSYNC";
+    public const string WaitCommand = "WAIT";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";
