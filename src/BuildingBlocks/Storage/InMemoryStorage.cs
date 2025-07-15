@@ -11,9 +11,9 @@ public class InMemoryStorage
         _storage[key] = value;
     }
     
-    public object Get(string key)
+    public object? Get(string key)
     {
-        return _storage[key];
+        return _storage.GetValueOrDefault(key, null);
     }
 
     public void Remove(string key)
