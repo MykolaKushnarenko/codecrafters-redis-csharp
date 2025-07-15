@@ -37,10 +37,10 @@ public class MasterClient : IMasterClient
 
         if (raspProtocolData.Name.Equals("PONG"))
         {
-            return new CommunicationResult { Successed = true };
+            return new CommunicationResult { Succeeded = true };
         }
-
-        return new CommunicationResult() { Successed = false };
+        
+        return new CommunicationResult() { Succeeded = false };
     }
 
     private async Task<RaspProtocolData?> ReceiveInternalAsync(CancellationToken cancellationToken)
@@ -70,10 +70,10 @@ public class MasterClient : IMasterClient
 
         if (raspProtocolData.Name.Equals("OK"))
         {
-            return new CommunicationResult { Successed = true };
+            return new CommunicationResult { Succeeded = true };
         }
-
-        return new CommunicationResult { Successed = false };
+        
+        return new CommunicationResult { Succeeded = false };
     }
 
     public async Task<CommunicationResult> SendPSync(CancellationToken cancellationToken)
@@ -89,10 +89,10 @@ public class MasterClient : IMasterClient
         
         if (raspProtocolData.Name.Equals("OK"))
         {
-            return new CommunicationResult { Successed = true };
+            return new CommunicationResult { Succeeded = true };
         }
 
-        return new CommunicationResult() { Successed = false };
+        return new CommunicationResult() { Succeeded = false };
     }
 
     public async Task<byte[]> ReceiveRdbFileAsync(CancellationToken cancellationToken)
@@ -126,10 +126,10 @@ public class MasterClient : IMasterClient
 
         if (raspProtocolData.Name.Equals("OK"))
         {
-            return new CommunicationResult { Successed = true };
+            return new CommunicationResult { Succeeded = true };
         }
-
-        return new CommunicationResult() { Successed = false };
+        
+        return new CommunicationResult() { Succeeded = false };
     }
 
     private async Task TryConnectAsync(CancellationToken cancellationToken)

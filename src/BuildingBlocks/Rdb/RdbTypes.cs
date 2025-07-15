@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.DB;
+namespace codecrafters_redis.BuildingBlocks.Rdb;
 
 internal enum RdbTypes
 {

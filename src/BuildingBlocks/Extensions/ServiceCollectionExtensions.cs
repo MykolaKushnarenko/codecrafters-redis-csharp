@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IMasterClient, MasterClient>();
         services.AddSingleton<ReplicationManager>();
         services.AddSingleton<AcknowledgeCommandTracker>();
+        services.AddSingleton<StreamInMemoryStorage>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()

@@ -42,6 +42,5 @@ public class SetCommandHandler : ICommandHandler<Command>
         list.AddRange(command.Arguments.Select(argument => BulkStringResult.Create(argument.ToString()!)));
         await _replicationManager.ReplicateAsync(ArrayResult.Create(list.ToArray()), cancellationToken);
         return SimpleStringResult.Create(Constants.OkResponse);
-
     }
 }

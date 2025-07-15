@@ -1,7 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace codecrafters_redis.BuildingBlocks.DB;
+namespace codecrafters_redis.BuildingBlocks.Rdb;
 
 public static class RdbParser
 {
