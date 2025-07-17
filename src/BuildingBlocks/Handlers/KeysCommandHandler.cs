@@ -6,12 +6,12 @@ namespace codecrafters_redis.BuildingBlocks.Handlers;
 
 public class KeysCommandHandler : ICommandHandler<Command>
 {
-    private readonly InMemoryStorage _storage;
+    private readonly RedisStorage _storage;
     private readonly WatchDog _watchDog;
     
     public string HandlingCommandName => Constants.KeysCommand;
     
-    public KeysCommandHandler(InMemoryStorage storage, WatchDog watchDog)
+    public KeysCommandHandler(RedisStorage storage, WatchDog watchDog)
     {
         _storage = storage;
         _watchDog = watchDog;

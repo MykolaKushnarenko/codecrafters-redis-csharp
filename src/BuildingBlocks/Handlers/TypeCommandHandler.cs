@@ -5,13 +5,11 @@ namespace codecrafters_redis.BuildingBlocks.Handlers;
 
 public class TypeCommandHandler : ICommandHandler<Command>
 {
-    private readonly InMemoryStorage _storage;
-    private readonly StreamInMemoryStorage _steamInMemoryStorage;
+    private readonly RedisStorage _storage;
 
-    public TypeCommandHandler(InMemoryStorage storage, StreamInMemoryStorage steamInMemoryStorage)
+    public TypeCommandHandler(RedisStorage storage)
     {
         _storage = storage;
-        _steamInMemoryStorage = steamInMemoryStorage;
     }
 
     public string HandlingCommandName => Constants.TypeCommand;
@@ -21,18 +19,20 @@ public class TypeCommandHandler : ICommandHandler<Command>
         var key = command.Arguments[0].ToString();
 
         var value = _storage.Get(key);
-        var streamValue = _steamInMemoryStorage.Get(key);
 
-        if (value is null && streamValue is null)
+        if (value != RedisValue.Null)
         {
-            return Task.FromResult<CommandResult>(SimpleStringResult.Create("none"));
+            return Task.FromResult<CommandResult>(SimpleStringResult.Create(value.Type.ToString().ToLowerInvariant()));
+        }
+
+        var stream = _storage.GetStream(key);
+
+        if (stream != null)
+        {
+            return Task.FromResult<CommandResult>(SimpleStringResult.Create("stream"));       
         }
         
-        var type = value is null
-            ? StorageItemTypeMapper.GetStorageType(streamValue.GetType()).ToString()
-                : StorageItemTypeMapper.GetStorageType(value.GetType()).ToString();
-        
         return Task.FromResult<CommandResult>(
-            SimpleStringResult.Create(type.ToLowerInvariant()));
+            SimpleStringResult.Create("none"));
     }
 }

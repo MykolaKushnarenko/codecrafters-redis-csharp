@@ -5,10 +5,10 @@ namespace codecrafters_redis.BuildingBlocks.Handlers;
 
 public class GetCommandHandler : ICommandHandler<Command>
 {
-    private readonly InMemoryStorage _storage;
+    private readonly RedisStorage _storage;
     private readonly WatchDog _watchDog;
     
-    public GetCommandHandler(InMemoryStorage storage, WatchDog watchDog)
+    public GetCommandHandler(RedisStorage storage, WatchDog watchDog)
     {
         _storage = storage;
         _watchDog = watchDog;
@@ -28,6 +28,6 @@ public class GetCommandHandler : ICommandHandler<Command>
         
         var value = _storage.Get(key!);
 
-        return Task.FromResult<CommandResult>(BulkStringResult.Create(value.ToString()!));
+        return Task.FromResult<CommandResult>(BulkStringResult.Create(value.Value.ToString()!));
     }
 }

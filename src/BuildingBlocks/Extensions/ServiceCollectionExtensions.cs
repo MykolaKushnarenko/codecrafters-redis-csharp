@@ -15,14 +15,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Server>();
         services.AddSingleton<ApplicationLifetime>();
         
-        services.AddSingleton<InMemoryStorage>();
         services.AddSingleton<WatchDog>();
         services.AddSingleton<IMediator, Mediator>();
         services.AddSingleton<ICommandHandlerFactory, CommandHandlerFactory>();
         services.AddSingleton<IMasterClient, MasterClient>();
         services.AddSingleton<ReplicationManager>();
         services.AddSingleton<AcknowledgeCommandTracker>();
-        services.AddSingleton<StreamInMemoryStorage>();
+        services.AddSingleton<RedisStorage>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()

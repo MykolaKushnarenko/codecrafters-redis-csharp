@@ -9,7 +9,7 @@ namespace codecrafters_redis.BuildingBlocks;
 public class Initiator
 {
     private readonly ServerConfiguration _configuration;
-    private readonly InMemoryStorage _storage;
+    private readonly RedisStorage _storage;
     private readonly WatchDog _watchDog;
     private readonly IMasterClient _masterClient;
     private readonly IMediator _mediator;
@@ -17,7 +17,7 @@ public class Initiator
 
     public Initiator(
         ServerConfiguration configuration, 
-        InMemoryStorage storage, 
+        RedisStorage storage, 
         WatchDog watchDog,
         IMasterClient masterClient, 
         IMediator mediator, AcknowledgeCommandTracker tracker)
@@ -109,7 +109,7 @@ public class Initiator
 
         foreach (var keyValue in firstDb.KeyValues)
         {
-            _storage.Set(keyValue.Key, keyValue.Value);
+            _storage.Set(keyValue.Key, RedisValue.Create(keyValue.Value));
         }
 
         foreach (var keyExpirationTimestamp in firstDb.KeyExpirationTimestamps)

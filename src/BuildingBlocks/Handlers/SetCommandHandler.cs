@@ -6,12 +6,12 @@ namespace codecrafters_redis.BuildingBlocks.Handlers;
 
 public class SetCommandHandler : ICommandHandler<Command>
 {
-    private readonly InMemoryStorage _storage;
+    private readonly RedisStorage _storage;
     private readonly WatchDog _watchDog;
     private readonly ReplicationManager _replicationManager;
     private readonly ServerConfiguration _configuration;
 
-    public SetCommandHandler(InMemoryStorage storage, WatchDog watchDog, ReplicationManager replicationManager, ServerConfiguration configuration)
+    public SetCommandHandler(RedisStorage storage, WatchDog watchDog, ReplicationManager replicationManager, ServerConfiguration configuration)
     {
         _storage = storage;
         _watchDog = watchDog;
@@ -33,7 +33,7 @@ public class SetCommandHandler : ICommandHandler<Command>
             _watchDog.Watch(key!, DateTimeOffset.UtcNow.AddMilliseconds(expiration));
         }
 
-        _storage.Set(key!, value!);
+        _storage.Set(key!, RedisValue.Create(value!));
         _replicationManager.IncrementWriteCommandOffset(command.CommandByteLength);
 
         if (_configuration.Role != "master") return new MasterReplicationResult();
