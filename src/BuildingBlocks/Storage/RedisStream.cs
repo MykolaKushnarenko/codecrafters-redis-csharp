@@ -12,6 +12,11 @@ public class RedisStream
         lock (_syncLock)
         {
             Validate(id);
+
+            if (id.Contains("*"))
+            {
+                id = GenerateAutoId(id);
+            }
             
             var entry = new StreamEntry(id, fields);
             _entries.Add(id, entry);
@@ -39,6 +44,12 @@ public class RedisStream
     private void Validate(string id)
     {
         var newStreamTimeAndSequence = id.Split('-');
+
+        if (newStreamTimeAndSequence[0] == "*" || newStreamTimeAndSequence[1] == "*")
+        {
+            return;
+        }
+        
         var newStreamTimestamp = long.Parse(newStreamTimeAndSequence[0]);
         var newStreamSequence = long.Parse(newStreamTimeAndSequence[1]);
 
@@ -70,17 +81,30 @@ public class RedisStream
         throw new RedisException($"The ID specified in XADD is equal or smaller than the target stream top item");
     }
 
-    private string GenerateAutoId()
+    private string GenerateAutoId(string id)
     {
-        var now = DateTimeOffset.UtcNow;
-        var timestamp = now.ToUnixTimeMilliseconds();
+        long timestamp = 0;
+        long sequence = 0;
+        var idsTimestampAndSequence = id.Split('-');
         
-        if (_entries.Count > 0 && _entries.Last().Key.StartsWith(timestamp.ToString()))
+        timestamp = idsTimestampAndSequence[0] == "*" ? 0 : long.Parse(idsTimestampAndSequence[0]);
+        
+        switch (idsTimestampAndSequence[1])
         {
-            var lastSeq = _entries.Last().Key.Split('-')[1];
-            return $"{timestamp}-{int.Parse(lastSeq) + 1}";
+            case "*" when _entries.Count != 0 && _entries.Last().Key.StartsWith(timestamp.ToString()):
+            {
+                var lastSeq = _entries.Last().Key.Split('-')[1];
+                sequence = int.Parse(lastSeq) + 1;
+                break;
+            }
+            case "*":
+                sequence = timestamp == 0 ? 1 : 0;
+                break;
+            default:
+                sequence = long.Parse(idsTimestampAndSequence[1]);
+                break;
         }
         
-        return $"{timestamp}-0";
+        return $"{timestamp}-{sequence}";
     }
 }
