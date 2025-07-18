@@ -86,6 +86,11 @@ public class RedisStream
         long timestamp = 0;
         long sequence = 0;
         var idsTimestampAndSequence = id.Split('-');
+
+        if (idsTimestampAndSequence.Length != 2 && idsTimestampAndSequence[0] == "*")
+        {
+            return $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}-{sequence}";
+        }
         
         timestamp = idsTimestampAndSequence[0] == "*" ? 0 : long.Parse(idsTimestampAndSequence[0]);
         
