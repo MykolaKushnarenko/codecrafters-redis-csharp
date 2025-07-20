@@ -1,6 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
 public interface ICommandHandler<in TCommand> where TCommand : ICommand
 {

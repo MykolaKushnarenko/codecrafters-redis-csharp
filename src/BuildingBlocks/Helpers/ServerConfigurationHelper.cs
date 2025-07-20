@@ -1,6 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.Configurations;
 
-namespace codecrafters_redis.BuildingBlocks.Helpers;
+namespace DotRedis.BuildingBlocks.Helpers;
 
 public static class ServerConfigurationHelper
 {
@@ -24,6 +25,7 @@ public static class ServerConfigurationHelper
             if (args[i].Equals(Constants.PortArgument, StringComparison.CurrentCultureIgnoreCase))
             {
                 configuration.Port = int.Parse(args[i+1]);
+                Console.WriteLine(configuration.Port);
             }
 
             if (args[i].Equals(Constants.ReplicaOfArgument, StringComparison.CurrentCultureIgnoreCase))

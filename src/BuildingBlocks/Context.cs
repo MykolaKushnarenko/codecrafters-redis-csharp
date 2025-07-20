@@ -1,6 +1,6 @@
 using System.Net.Sockets;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
 public class Context
 {

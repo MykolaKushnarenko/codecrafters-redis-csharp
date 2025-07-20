@@ -1,33 +1,72 @@
-[![progress-banner](https://backend.codecrafters.io/progress/redis/774fa7e1-4cf0-4db9-b4e5-25d1f1e7482e)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# Toy Redis Clone
 
-This is a starting point for C# solutions to the
-["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis).
+This project is a simplistic implementation of a Redis-like server in C#, created specifically for **educational purposes**. It is poorly designed to demonstrate concepts and is **not intended for production use**. The goal is to help developers understand the basics of the Redis protocol and how a simple in-memory data store could be implemented.
 
-In this challenge, you'll build a toy Redis clone that's capable of handling
-basic commands like `PING`, `SET` and `GET`. Along the way we'll learn about
-event loops, the Redis protocol and more.
+If you're not familiar with Redis, you can check its [official documentation here](https://redis.io/docs).
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+---
 
-# Passing the first stage
+## Commands Implemented
 
-The entry point for your Redis implementation is in `src/Server.cs`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+This project implements the following Redis commands. Below is a brief description of each command and a link to its corresponding Redis documentation:
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+1. **`PING`**
+   - Description: A simple command that tests connectivity.
+   - Example: `PING` responds with `PONG`.
+   - Documentation: [PING Command](https://redis.io/commands/ping)
 
-That's all!
+2. **`SET`**
+   - Description: Sets a string value to a specified key.
+   - Example: `SET key value`.
+   - Documentation: [SET Command](https://redis.io/commands/set)
 
-# Stage 2 & beyond
+3. **`GET`**
+   - Description: Retrieves the string value of a specified key.
+   - Example: `GET key`.
+   - Documentation: [GET Command](https://redis.io/commands/get)
 
-Note: This section is for stages 2 and beyond.
+Feel free to explore and extend the functionality further to implement more complex features.
 
-1. Ensure you have `dotnet (8.0)` installed locally
-1. Run `./your_program.sh` to run your Redis server, which is implemented in
-   `src/Server.cs`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+---
+
+## How to Run the Project
+
+To test or debug this educational Redis clone, follow these steps:
+
+1. Ensure you have the `.NET 9.0 SDK` installed.
+2. Clone this repository.
+3. Run the project locally:
+   ```sh
+   ./your_program.sh
+   ```
+4. Use a Redis-compatible client (like `redis-cli`) to communicate with your server.
+
+---
+
+## Project TODOs
+
+As this project is for learning purposes, there are numerous unimplemented features and areas for improvement. Here are all the TODOs present in the codebase:
+
+- **TODO**: Add error handling for invalid commands.
+- **TODO**: Implement data expiration for `SET` keys.
+- **TODO**: Add support for additional Redis commands (e.g., `DEL`, `MSET`, `INCR`).
+- **TODO**: Optimize memory usage for large datasets.
+- **TODO**: Implement persistence to save data to disk.
+- **TODO**: Support multi-threading for concurrent connections.
+- **TODO**: Add proper logging for server activity.
+- **TODO**: Include unit tests to improve code reliability.
+- **TODO**: Replace placeholder responses with actual error messages.
+
+---
+
+## Disclaimer
+
+This project is a toy implementation and has been **intentionally kept simple to focus on fundamental concepts**. As such, it is not optimized for performance, security, or reliability and is not suitable for real-world use cases.
+
+For learning resources, you can check out:
+- [Redis Documentation](https://redis.io/docs)
+- [Redis Protocol Specification](https://redis.io/docs/reference/protocol-spec/)
+
+---
+
+Feel free to fork this repository, try out the commands, and extend the functionality further. All feedback and contributions are welcome!

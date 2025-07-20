@@ -1,9 +1,20 @@
-using System.Text;
-using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the execution of the "KEYS" command within a Redis-like system.
+/// </summary>
+/// <remarks>
+///     The KeysCommandHandler is responsible for processing the "KEYS" command to retrieve a list
+///     of keys stored in the system. It filters the keys to exclude expired ones by utilizing the
+///     WatchDog class.
+///     Redis link: https://redis.io/docs/latest/commands/keys/
+/// </remarks>
 public class KeysCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;

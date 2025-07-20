@@ -1,5 +1,8 @@
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     Tracks and accumulates the total number of bytes processed by commands in the system.
+/// </summary>
 public class AcknowledgeCommandTracker
 {
     private long _totalProcessedCommandBytes;

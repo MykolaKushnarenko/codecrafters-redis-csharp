@@ -1,8 +1,13 @@
 using System.Text;
-using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.CommandResults;
 
-namespace codecrafters_redis.BuildingBlocks.Parsers;
+namespace DotRedis.BuildingBlocks.Parsers;
 
+/// <summary>
+/// Provides methods for converting <see cref="CommandResult"/> objects into a representation
+/// compliant with the RESP (REdis Serialization Protocol) format.
+/// </summary>
 public static class RaspConverter
 {
     public static IEnumerable<byte[]> Convert(CommandResult result)

@@ -1,8 +1,20 @@
-using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the execution of the "GET" command for the Redis-like system.
+/// </summary>
+/// <remarks>
+///     The GetCommandHandler is responsible for retrieving the value associated with a
+///     given key from the RedisStorage. It interacts with the storage to fetch the value
+///     and ensures that the key has not expired based on the WatchDog's validation.
+///     If the key is expired, it removes the key from storage and returns an empty bulk string result.
+/// </remarks>
 public class GetCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;

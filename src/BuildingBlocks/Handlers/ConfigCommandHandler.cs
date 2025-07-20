@@ -1,9 +1,17 @@
-using System.Text;
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Configurations;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the "CONFIG" command in a Redis-like system, providing support for
+///     retrieving or managing server configuration settings.
+/// </summary>
+/// <remarks>
+///     Redis link: https://redis.io/docs/latest/commands/config-get/
+/// </remarks>
 public class ConfigCommandHandler : ICommandHandler<Command>
 {
     private readonly ServerConfiguration _configuration;

@@ -1,9 +1,16 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Exceptions;
+using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Exceptions;
+using DotRedis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the execution of the "XADD" command for a Redis-like system.
+///     This command is used to append a new entry to a stream data structure in the database.
+/// </summary>
 public class XAddCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;

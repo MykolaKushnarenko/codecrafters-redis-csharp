@@ -1,18 +1,25 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the REPLCONF command within the Redis-like system.
+/// </summary>
+/// <remarks>
+///     RepconfCommandHandler is responsible for executing specific subcommands of the REPLCONF command.
+///     These subcommands relate to replication configuration and acknowledgment behaviors in the system.
+///     Redis link: https://redis.io/docs/latest/commands/replconf/
+/// </remarks>
 public class RepconfCommandHandler : ICommandHandler<Command>
 {
     private readonly ReplicationManager _replicationManager;
-    private readonly ServerConfiguration _configuration;
     private readonly AcknowledgeCommandTracker _acknowledge;
     
-    public RepconfCommandHandler(ReplicationManager replicationManager, ServerConfiguration configuration, AcknowledgeCommandTracker acknowledge)
+    public RepconfCommandHandler(ReplicationManager replicationManager, AcknowledgeCommandTracker acknowledge)
     {
         _replicationManager = replicationManager;
-        _configuration = configuration;
         _acknowledge = acknowledge;
     }
     

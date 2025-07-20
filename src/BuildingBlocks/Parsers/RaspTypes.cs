@@ -1,5 +1,9 @@
-namespace codecrafters_redis.BuildingBlocks.Parsers;
+namespace DotRedis.BuildingBlocks.Parsers;
 
+/// <summary>
+///     A static class that defines constant byte values representing the different data types
+///     used in the Redis Serialization Protocol (RESP).
+/// </summary>
 public static class RaspTypes
 {
     public const byte SimpleStrings = (byte)'+';

@@ -1,7 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Handlers;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Handlers;
 
-namespace codecrafters_redis.BuildingBlocks.HandlerFactory;
+namespace DotRedis.BuildingBlocks.HandlerFactory;
 
 public interface ICommandHandlerFactory
 {

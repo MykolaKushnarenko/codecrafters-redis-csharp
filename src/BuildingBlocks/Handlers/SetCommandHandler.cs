@@ -1,9 +1,23 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Configurations;
+using DotRedis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the Redis "SET" command, allowing for the storage of a key-value pair
+///     in the Redis-like storage system. This command can also optionally handle
+///     expiration using the "PX" option for setting time-to-live in milliseconds.
+/// </summary>
+/// <remarks>
+///     This class is responsible for interacting with underlying storage, managing
+///     expiration using a WatchDog mechanism, replicating commands to replicas if
+///     needed, and ensuring consistency in a master-slave architecture.
+///     Redis link: https://redis.io/docs/latest/commands/set/
+/// </remarks>
 public class SetCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;

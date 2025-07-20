@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
+using codecrafters_redis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks.Storage;
+namespace DotRedis.BuildingBlocks.Storage;
 
 public class RedisStorage
 {
