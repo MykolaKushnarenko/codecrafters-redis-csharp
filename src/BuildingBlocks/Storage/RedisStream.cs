@@ -27,6 +27,16 @@ public class RedisStream
 
     public StreamEntry[] Range(string start, string end, int? count = null)
     {
+        if (start == "-")
+        {
+            start = _entries.Keys.First();
+        }
+
+        if (end == "+")
+        {
+            end = _entries.Keys.Last();
+        }
+        
         lock (_syncLock)
         {
             return _entries
