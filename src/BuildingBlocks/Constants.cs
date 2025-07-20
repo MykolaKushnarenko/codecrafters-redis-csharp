@@ -20,6 +20,7 @@ public static class Constants
     public const string TypeCommand = "TYPE";
     public const string XAddCommand = "XADD";
     public const string XRangeCommand = "XRANGE";
+    public const string XReadCommand = "XREAD";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";

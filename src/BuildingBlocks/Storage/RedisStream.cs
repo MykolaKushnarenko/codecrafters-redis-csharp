@@ -49,6 +49,18 @@ public class RedisStream
         }
     }
     
+    public StreamEntry[] Read(string id)
+    {
+        lock (_syncLock)
+        {
+            return _entries
+                .Where(kv => 
+                    CompareIds(kv.Key, id) > 0 )
+                .Select(kv => kv.Value)
+                .ToArray();
+        }
+    }
+    
     private int CompareIds(string id1, string id2)
     {
         if (id1 == "-") return -1;
