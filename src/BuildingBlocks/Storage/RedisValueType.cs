@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Storage;
+namespace DotRedis.BuildingBlocks.Storage;
 
 public enum RedisValueType
 {

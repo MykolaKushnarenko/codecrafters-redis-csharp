@@ -1,5 +1,6 @@
 using codecrafters_redis.BuildingBlocks;
-using codecrafters_redis.BuildingBlocks.Extensions;
+using DotRedis.BuildingBlocks;
+using DotRedis.BuildingBlocks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 var serviceCollection = new ServiceCollection();

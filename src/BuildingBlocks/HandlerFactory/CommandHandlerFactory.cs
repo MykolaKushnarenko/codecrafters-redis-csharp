@@ -1,19 +1,23 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Handlers;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace codecrafters_redis.BuildingBlocks.HandlerFactory;
+namespace DotRedis.BuildingBlocks.HandlerFactory;
 
+/// <summary>
+///     Factory class responsible for providing the appropriate command handler
+///     for a given command name.
+/// </summary>
 public class CommandHandlerFactory : ICommandHandlerFactory
 {
-    private readonly Dictionary<string, ICommandHandler<Command>> commandHandlerMap;
+    private readonly Dictionary<string, ICommandHandler<Command>> _commandHandlerMap;
     
     public CommandHandlerFactory(IServiceProvider provider)
     {
         var handler = provider.GetServices<ICommandHandler<Command>>();
-        commandHandlerMap = handler.ToDictionary(x => x.HandlingCommandName, x => x);
+        _commandHandlerMap = handler.ToDictionary(x => x.HandlingCommandName, x => x);
     }
 
     public ICommandHandler<Command>? GetHandler(string commandName) =>
-        commandHandlerMap!.GetValueOrDefault(commandName, null);
+        _commandHandlerMap!.GetValueOrDefault(commandName, null);
 }

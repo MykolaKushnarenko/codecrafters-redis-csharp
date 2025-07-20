@@ -1,7 +1,10 @@
 using System.Text;
 
-namespace codecrafters_redis.BuildingBlocks.Parsers;
+namespace DotRedis.BuildingBlocks.Parsers;
 
+/// <summary>
+/// A utility class for parsing RASP (Redis Advanced Serialization Protocol) commands and bulk binary data from input streams.
+/// </summary>
 public static class RaspProtocolParser
 {
     public static async Task<byte[]> ParseBinaryAsync(Stream input)
@@ -35,7 +38,7 @@ public static class RaspProtocolParser
             _ => null
         };
     }
-
+    
     private static async Task<object> ParseProtocol(Stream input, CancellationToken cancellationToken)
     {
         var buffer = new byte[1];

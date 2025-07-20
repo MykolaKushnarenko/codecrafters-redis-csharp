@@ -1,5 +1,9 @@
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     Manages the application lifetime by providing mechanisms to handle
+///     application shutdown and disposal activities.
+/// </summary>
 public class ApplicationLifetime : IDisposable
 {
     private readonly CancellationTokenSource _cts = new();
@@ -9,13 +13,12 @@ public class ApplicationLifetime : IDisposable
     {
         _shutdownHandler = (sender, e) => 
         {
-            e.Cancel = true; // Prevent immediate termination
-            _cts.Cancel();  // Trigger graceful shutdown
+            e.Cancel = true; 
+            _cts.Cancel();
         };
         
         Console.CancelKeyPress += _shutdownHandler;
         
-        // Also listens to ProcessExit via AppDomain
         AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
         return _cts.Token;

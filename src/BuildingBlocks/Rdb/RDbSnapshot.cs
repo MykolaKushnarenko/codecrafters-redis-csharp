@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Rdb;
+namespace DotRedis.BuildingBlocks.Rdb;
 
 public class RDbSnapshot
 {

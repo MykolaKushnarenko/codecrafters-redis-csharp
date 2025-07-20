@@ -1,9 +1,14 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.HandlerFactory;
-using codecrafters_redis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.HandlerFactory;
+using DotRedis.BuildingBlocks.Parsers;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     The Mediator class serves as the central coordination point for the processing of commands.
+///     It interacts with ICommandHandlerFactory to delegate commands to their respective handlers.
+/// </summary>
 public class Mediator : IMediator
 {
     private readonly ICommandHandlerFactory _commandHandlerFactory;

@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Commands;
+namespace DotRedis.BuildingBlocks.CommandResults;
 
 public enum CommandResultType
 {
@@ -8,6 +8,5 @@ public enum CommandResultType
     BulkString,    // E.g., "$6\r\nfoobar"
     Array,         // E.g., "*2\r\n$3\r\nfoo\r\n$3\r\nbar"
     Stream,        // For streaming incremental responses
-    Pluged,        // For PLUGDED responses
-    MasterReplication
+    MasterReplication // For MASTER REPLICATION responses (this is a marker for no response). 
 }

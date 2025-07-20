@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace codecrafters_redis.BuildingBlocks.Storage;
+namespace DotRedis.BuildingBlocks.Storage;
 
 public class WatchDog
 {

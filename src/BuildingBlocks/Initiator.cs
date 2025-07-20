@@ -1,11 +1,16 @@
-using codecrafters_redis.BuildingBlocks.Communication;
-using codecrafters_redis.BuildingBlocks.Configurations;
-using codecrafters_redis.BuildingBlocks.Parsers;
-using codecrafters_redis.BuildingBlocks.Rdb;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.Communication;
+using DotRedis.BuildingBlocks.Configurations;
+using DotRedis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.Rdb;
+using DotRedis.BuildingBlocks.Storage;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     The <c>Initiator</c> class is responsible for initializing necessary components and performing setup actions.
+///     It handles tasks like restoring the store state and sending an initial handshake based on server role.
+/// </summary>
 public class Initiator
 {
     private readonly ServerConfiguration _configuration;
@@ -40,17 +45,22 @@ public class Initiator
         }
     }
 
+    // TODO: Move this to a separate class
+    // Hadnshake is the responsibility of a slave.
     private async Task SendInitialHandshakeAsync(CancellationToken cancellationToken)
     { 
         await _masterClient.SendPing(cancellationToken);
         await _masterClient.SendRepConfigListeningPort(cancellationToken);
         await _masterClient.SendRepConfigCapa(cancellationToken);
         await _masterClient.SendPSync(cancellationToken);
+        
+        //TODO: We receive the RDB file but did not use it.We need to rehydrate the store state from the RDB file.
         await _masterClient.ReceiveRdbFileAsync(cancellationToken);
 
         _masterClient.Network.Reset();
-        //read db.rdb file
 
+        
+        //TODO: Duplicate code. We need to refactor this.
         _ = Task.Run(async () =>
         {
             while (!cancellationToken.IsCancellationRequested)

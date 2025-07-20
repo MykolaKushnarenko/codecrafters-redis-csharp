@@ -1,6 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Exceptions;
+using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.Exceptions;
 
-namespace codecrafters_redis.BuildingBlocks.Storage;
+namespace DotRedis.BuildingBlocks.Storage;
 
 public class RedisStream
 {
@@ -24,22 +25,40 @@ public class RedisStream
         }
     }
 
-    // public StreamEntry[] Range(string start, string end, int? count = null)
-    // {
-    //     lock (_syncLock)
-    //     {
-    //         var startId = ParseId(start);
-    //         var endId = ParseId(end);
-    //         
-    //         return _entries
-    //             .Where(kv => 
-    //                 CompareIds(kv.Key, startId) >= 0 && 
-    //                 CompareIds(kv.Key, endId) <= 0)
-    //             .Take(count ?? int.MaxValue)
-    //             .Select(kv => kv.Value)
-    //             .ToArray();
-    //     }
-    // }
+    public StreamEntry[] Range(string start, string end, int? count = null)
+    {
+        lock (_syncLock)
+        {
+            return _entries
+                .Where(kv => 
+                    CompareIds(kv.Key, start) >= 0 && 
+                    CompareIds(kv.Key, end) <= 0)
+                .Take(count ?? int.MaxValue)
+                .Select(kv => kv.Value)
+                .ToArray();
+        }
+    }
+    
+    private int CompareIds(string id1, string id2)
+    {
+        if (id1 == "-") return -1;
+        if (id1 == "+") return 1;
+        if (id2 == "-") return 1;
+        if (id2 == "+") return -1;
+
+        var parts1 = id1.Split('-');
+        var parts2 = id2.Split('-');
+
+        // Compare milliseconds
+        var ms1 = long.Parse(parts1[0]);
+        var ms2 = long.Parse(parts2[0]);
+        if (ms1 != ms2) return ms1.CompareTo(ms2);
+
+        // Compare sequence numbers if milliseconds equal
+        var seq1 = long.Parse(parts1[1]);
+        var seq2 = long.Parse(parts2[1]);
+        return seq1.CompareTo(seq2);
+    }
 
     private void Validate(string id)
     {

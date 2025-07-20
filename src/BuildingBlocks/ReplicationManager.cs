@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
 using System.Net.Sockets;
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Parsers;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     Manages replication in a distributed system by coordinating interactions between the master node
+///     and its replicas (slaves), including handling data synchronization, acknowledgements, and state updates.
+/// </summary>
 public class ReplicationManager
 {
     private readonly ConcurrentBag<NetworkStream> _slaveSockets = new();

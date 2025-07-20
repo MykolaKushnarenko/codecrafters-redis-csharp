@@ -1,4 +1,6 @@
-namespace codecrafters_redis.BuildingBlocks.Storage;
+using codecrafters_redis.BuildingBlocks.Storage;
+
+namespace DotRedis.BuildingBlocks.Storage;
 
 //TODO: merge with RedisValue class
 public class StreamEntry

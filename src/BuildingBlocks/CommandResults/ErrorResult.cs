@@ -1,5 +1,11 @@
-namespace codecrafters_redis.BuildingBlocks.Commands;
+namespace DotRedis.BuildingBlocks.CommandResults;
 
+/// <summary>
+///     Represents a command result of type Error.
+/// </summary>
+/// <remarks>
+///     Redis link: https://redis.io/docs/latest/develop/reference/protocol-spec/#bulk-errors
+/// </remarks>
 public class ErrorResult : CommandResult
 {
     public override CommandResultType Type => CommandResultType.Error;

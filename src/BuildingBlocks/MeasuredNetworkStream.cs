@@ -1,10 +1,13 @@
 using System.Net.Sockets;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
 /// <summary>
-/// Facade for NetworkStream that tracks bytes read/written
+///     Facade for NetworkStream that tracks bytes read/written.
 /// </summary>
+/// <remarks>
+///     We need this class to track bytes read/written in order to calculate the total size of commands processed which is used in replication.
+/// </remarks>
 public class MeasuredNetworkStream : Stream
 {
     private readonly NetworkStream _innerStream;

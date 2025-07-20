@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Exceptions;
+namespace DotRedis.BuildingBlocks.Exceptions;
 
 public class RedisException : Exception
 {
