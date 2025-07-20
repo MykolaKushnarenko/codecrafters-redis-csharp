@@ -1,8 +1,14 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace codecrafters_redis.BuildingBlocks.Rdb;
+namespace DotRedis.BuildingBlocks.Rdb;
 
+/// <summary>
+///     A utility class for parsing Redis RDB (Redis Database Backup) files.
+/// </summary>
+/// <remarks>
+///     Doc link: https://rdb.fnordig.de/file_format.html
+/// </remarks>
 public static class RdbParser
 {
     public static async Task<List<RDbSnapshot>> ParseAsync(Stream file, CancellationToken cancellationToken)

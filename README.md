@@ -1,33 +1,79 @@
-[![progress-banner](https://backend.codecrafters.io/progress/redis/774fa7e1-4cf0-4db9-b4e5-25d1f1e7482e)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# CodeCrafters Redis Challenge (C#)
 
-This is a starting point for C# solutions to the
-["Build Your Own Redis" Challenge](https://codecrafters.io/challenges/redis).
+**⚠️ Educational Purposes Only**  
+This project is intentionally poorly designed as a learning exercise for the [CodeCrafters Redis Challenge](https://codecrafters.io/challenges/redis). It demonstrates basic Redis protocol implementation but contains many anti-patterns and should never be used in production.
 
-In this challenge, you'll build a toy Redis clone that's capable of handling
-basic commands like `PING`, `SET` and `GET`. Along the way we'll learn about
-event loops, the Redis protocol and more.
+## 🚀 Implemented Commands
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+### Basic Commands
+- [`PING`](https://redis.io/commands/ping/) - Simple server response test
+- [`ECHO`](https://redis.io/commands/echo/) - Returns the given string
+- [`SET`](https://redis.io/commands/set/) - Set key-value pair (without full options)
+- [`GET`](https://redis.io/commands/get/) - Get value by key
+- [`DEL`](https://redis.io/commands/del/) - Delete one or more keys
+- [`EXISTS`](https://redis.io/commands/exists/) - Check if key exists
+- [`TYPE`](https://redis.io/commands/type/) - Get key type (basic implementation)
 
-# Passing the first stage
+### Server Commands
+- [`INFO`](https://redis.io/commands/info/) - Partial server information
+- [`CONFIG`](https://redis.io/commands/config/) - Minimal GET/SET support
 
-The entry point for your Redis implementation is in `src/Server.cs`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+### Replication Commands
+- [`REPLCONF`](https://redis.io/commands/replconf/) - Basic replication setup
+- [`PSYNC`](https://redis.io/commands/psync/) - Partial sync implementation
+- [`WAIT`](https://redis.io/commands/wait/) - Fake implementation
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
-```
+### Stream Commands (Partial)
+- [`XADD`](https://redis.io/commands/xadd/) - Basic stream entry addition
+- [`XRANGE`](https://redis.io/commands/xrange/) - Simple range queries
 
-That's all!
+## 🏗️ Known Anti-Patterns (Intentional)
 
-# Stage 2 & beyond
+1. **Storage Layer**:
+   - Mixed concerns between different data types
+   - No proper persistence
+   - Race conditions in concurrent access
 
-Note: This section is for stages 2 and beyond.
+2. **Connection Handling**:
+   - No proper connection pooling
+   - Incomplete error recovery
+   - Resource leaks possible
 
-1. Ensure you have `dotnet (8.0)` installed locally
-1. Run `./your_program.sh` to run your Redis server, which is implemented in
-   `src/Server.cs`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+3. **Protocol Implementation**:
+   - Partial RESP (Redis Serialization Protocol) support
+   - Many edge cases not handled
+   - No proper pipelining
+
+## 📝 TODO List
+
+### Core Improvements
+- [ ] Implement proper thread-safe storage with granular locking
+- [ ] Add complete RESP3 protocol support
+- [ ] Implement TTL and key expiration
+- [ ] Add AOF (Append Only File) persistence
+- [ ] Proper connection lifecycle management
+
+### Command Completion
+- [ ] Full stream support (`XREAD`, `XGROUP`, etc.)
+- [ ] Transactions (`MULTI`/`EXEC`)
+- [ ] Pub/Sub functionality
+- [ ] Lua scripting support
+- [ ] Cluster mode implementation
+
+### Code Quality
+- [ ] Add comprehensive unit tests
+- [ ] Implement proper logging
+- [ ] Add metrics collection
+- [ ] Security hardening
+- [ ] Configuration system
+
+## 🧠 Learning Resources
+
+1. [Redis Protocol Specification](https://redis.io/docs/reference/protocol-spec/)
+2. [Redis Command Reference](https://redis.io/commands/)
+3. [Redis Database File Specification](https://rdb.fnordig.de/file_format.html)
+4. [C# Asynchronous Programming](https://docs.microsoft.com/en-us/dotnet/csharp/async)
+
+## ⚖️ License
+
+This educational project is released under the [MIT License](LICENSE).

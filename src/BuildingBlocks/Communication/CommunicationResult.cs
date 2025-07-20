@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Communication;
+namespace DotRedis.BuildingBlocks.Communication;
 
 public class CommunicationResult
 {

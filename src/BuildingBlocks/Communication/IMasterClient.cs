@@ -1,6 +1,6 @@
-using System.Net.Sockets;
+using codecrafters_redis.BuildingBlocks;
 
-namespace codecrafters_redis.BuildingBlocks.Communication;
+namespace DotRedis.BuildingBlocks.Communication;
 
 public interface IMasterClient
 {

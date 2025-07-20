@@ -1,7 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Parsers;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
 public interface IMediator
 {

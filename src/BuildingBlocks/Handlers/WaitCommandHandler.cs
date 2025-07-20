@@ -1,7 +1,19 @@
-using codecrafters_redis.BuildingBlocks.Commands;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.CommandResults;
+using DotRedis.BuildingBlocks.Commands;
 
-namespace codecrafters_redis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers;
 
+/// <summary>
+///     Handles the "WAIT" command, which waits for replication acknowledgments from a specified
+///     number of replicas within a given timeout period.
+/// </summary>
+/// <remarks>
+///     This handler processes commands that require monitoring the state of replication. It waits until
+///     the specified number of replicas have acknowledged a write or until the timeout has elapsed,
+///     whichever comes first. If no replication has occurred yet, it immediately returns the number of replicas.
+///     Redis link: https://redis.io/docs/latest/commands/wait/
+/// </remarks>
 public class WaitCommandHandler : ICommandHandler<Command>
 {
     private readonly ReplicationManager _replicationManager;

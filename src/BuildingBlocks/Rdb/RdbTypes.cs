@@ -1,5 +1,11 @@
-namespace codecrafters_redis.BuildingBlocks.Rdb;
+namespace DotRedis.BuildingBlocks.Rdb;
 
+/// <summary>
+///     Represents the different types of data encodings used in a Redis RDB file.
+/// </summary>
+/// <remarks>
+///     Doc link: https://rdb.fnordig.de/file_format.html#value-type
+/// </remarks>
 internal enum RdbTypes
 {
     StringEncoding = 0,

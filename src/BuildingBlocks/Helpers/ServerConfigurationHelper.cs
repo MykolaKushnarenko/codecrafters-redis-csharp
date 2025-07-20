@@ -1,6 +1,7 @@
-using codecrafters_redis.BuildingBlocks.Configurations;
+using codecrafters_redis.BuildingBlocks;
+using DotRedis.BuildingBlocks.Configurations;
 
-namespace codecrafters_redis.BuildingBlocks.Helpers;
+namespace DotRedis.BuildingBlocks.Helpers;
 
 public static class ServerConfigurationHelper
 {

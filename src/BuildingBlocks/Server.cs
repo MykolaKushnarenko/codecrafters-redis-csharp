@@ -1,12 +1,14 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Configurations;
-using codecrafters_redis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.Configurations;
+using DotRedis.BuildingBlocks.Parsers;
 
-namespace codecrafters_redis.BuildingBlocks;
+namespace DotRedis.BuildingBlocks;
 
+/// <summary>
+///     Represents a server that handles client requests asynchronously.
+///     Initializes necessary services and manages the lifecycle of client connections.
+/// </summary>
 public class Server
 {
     private readonly IMediator _mediator;

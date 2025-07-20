@@ -1,4 +1,4 @@
-namespace codecrafters_redis.BuildingBlocks.Commands;
+namespace DotRedis.BuildingBlocks.Commands;
 
 public interface ICommand
 {

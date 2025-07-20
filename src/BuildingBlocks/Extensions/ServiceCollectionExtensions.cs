@@ -1,12 +1,14 @@
-using codecrafters_redis.BuildingBlocks.Commands;
-using codecrafters_redis.BuildingBlocks.Communication;
-using codecrafters_redis.BuildingBlocks.HandlerFactory;
-using codecrafters_redis.BuildingBlocks.Handlers;
-using codecrafters_redis.BuildingBlocks.Helpers;
+using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Communication;
+using DotRedis.BuildingBlocks.HandlerFactory;
+using DotRedis.BuildingBlocks.Handlers;
+using DotRedis.BuildingBlocks.Helpers;
+using DotRedis.BuildingBlocks.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace codecrafters_redis.BuildingBlocks.Extensions;
+namespace DotRedis.BuildingBlocks.Extensions;
 
 public static class ServiceCollectionExtensions
 {
