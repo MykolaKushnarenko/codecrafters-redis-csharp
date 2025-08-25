@@ -16,41 +16,67 @@ public class XReadCommandHandler : ICommandHandler<Command>
 
     public string HandlingCommandName => Constants.XReadCommand;
 
-    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        var numberOfStreamKeys = (command.Arguments.Length - 1) / ArgumentKeyDivider;
-        var streamKeys = ExtractStreamKeys(command, numberOfStreamKeys);
-        var streamKeyIndex = numberOfStreamKeys + 1;
-
-        var result = new List<ArrayResult>();
-        foreach (var streamKey in streamKeys)
+        var position = 0;
+        
+        var isBlocking = string.Equals(command.Arguments[0].ToString(), "BLOCK", StringComparison.CurrentCultureIgnoreCase);
+        
+        if (isBlocking)
         {
-            var streamResult = ProcessStream(streamKey, command, streamKeyIndex);
-            result.Add(streamResult);
-            streamKeyIndex++;
+            var waitTime = int.Parse(command.Arguments[1].ToString());
+            await Task.Delay(TimeSpan.FromMilliseconds(waitTime), cancellationToken);
+            position = 3; // Skip BLOCK, WAIT TIME AND `STREAMS` 
         }
+        else
+        {
+            position = 1; //Skip `STREAMS`
+        }
+        var streamKeysWithIds = ExtractStreamKeysWithIds(command, position);
 
-        return Task.FromResult<CommandResult>(ArrayResult.Create(result.ToArray()));
+        var streamResults = streamKeysWithIds
+            .Select(streamKey => ProcessStream(streamKey.streamKey, streamKey.streamId))
+            .Where(result => result is not BulkStringEmptyResult)
+            .ToArray();
+
+        if (streamResults.Length != 0)
+        {
+            return ArrayResult.Create(streamResults);
+        }
+        
+        return new BulkStringEmptyResult();
     }
 
-    private List<string> ExtractStreamKeys(Command command, int numberOfStreamKeys)
+    private List<(string streamKey, string streamId)> ExtractStreamKeysWithIds(Command command, int startPosition)
     {
-        var streamKeys = new List<string>();
-        for (int i = 1; i <= numberOfStreamKeys; i++)
+        var count = (command.Arguments.Length - startPosition) / ArgumentKeyDivider;
+        
+        var streamKeys = new List<(string, string)>();
+        while (count > 0)
         {
-            streamKeys.Add(command.Arguments[i].ToString());
+            var key = command.Arguments[startPosition].ToString();
+            var id = command.Arguments[^count].ToString();
+            
+            count--;
+            startPosition++;
+            streamKeys.Add((key, id));
         }
+        
         return streamKeys;
     }
 
-    private ArrayResult ProcessStream(string streamKey, Command command, int streamKeyIndex)
+    private CommandResult ProcessStream(string streamKey, string streamId)
     {
         var streamResult = new List<ArrayResult>();
         var stream = _storage.GetStream(streamKey);
 
-        var streamId = command.Arguments[streamKeyIndex].ToString();
         var entries = stream.Read(streamId);
 
+        if (entries.Length == 0)
+        {
+            return new BulkStringEmptyResult();
+        }
+        
         foreach (var entry in entries)
         {
             streamResult.Add(ProcessEntry(entry));
