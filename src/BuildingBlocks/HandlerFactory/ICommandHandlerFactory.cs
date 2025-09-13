@@ -5,5 +5,5 @@ namespace DotRedis.BuildingBlocks.HandlerFactory;
 
 public interface ICommandHandlerFactory
 {
-    ICommandHandler<Command>? GetHandler(string commandName);
+    ICommandHandler<Command> GetHandler(string commandName);
 }

@@ -90,7 +90,6 @@ public class MeasuredNetworkStream : Stream
 
     // NetworkStream-specific members
     public bool DataAvailable => _innerStream.DataAvailable;
-    public void Close() => _innerStream.Close();
 
     public void Reset()
     {

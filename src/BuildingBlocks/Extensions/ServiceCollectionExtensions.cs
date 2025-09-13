@@ -1,10 +1,9 @@
-using codecrafters_redis.BuildingBlocks;
-using codecrafters_redis.BuildingBlocks.Storage;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Communication;
 using DotRedis.BuildingBlocks.HandlerFactory;
 using DotRedis.BuildingBlocks.Handlers;
 using DotRedis.BuildingBlocks.Helpers;
+using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ReplicationManager>();
         services.AddSingleton<AcknowledgeCommandTracker>();
         services.AddSingleton<RedisStorage>();
+        services.AddSingleton<RedisStreamListener>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()

@@ -1,39 +1,62 @@
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
+using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 
 namespace DotRedis.BuildingBlocks.Handlers;
 
 public class XReadCommandHandler : ICommandHandler<Command>
 {
-    private const int ArgumentKeyDivider = 2; // Extracted constant
+    private const int ArgumentKeyDivider = 2;
     private readonly RedisStorage _storage;
+    private readonly RedisStreamListener _listener;
 
-    public XReadCommandHandler(RedisStorage storage)
+    private const int SkipBlockWaitStreamsPosition = 3;
+    private const int SkipStreamsPosition = 1;
+    
+    public XReadCommandHandler(RedisStorage storage, RedisStreamListener listener)
     {
         _storage = storage;
+        _listener = listener;
     }
 
     public string HandlingCommandName => Constants.XReadCommand;
 
     public async Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        var position = 0;
-        
+        var shouldWaitForLatestItems = string.Equals(command.Arguments[^1].ToString(), "$", StringComparison.CurrentCultureIgnoreCase);
         var isBlocking = string.Equals(command.Arguments[0].ToString(), "BLOCK", StringComparison.CurrentCultureIgnoreCase);
+
+        var streamKeysWithIds = new List<(string streamKey, string streamId)>();
         
         if (isBlocking)
         {
+            if (shouldWaitForLatestItems)
+            {
+                command.Arguments = command.Arguments[..^1];
+                streamKeysWithIds = ExtractLatestIdsFromStreams(command.Arguments, SkipBlockWaitStreamsPosition);
+            }
+            else
+            {
+                streamKeysWithIds = ExtractStreamKeysWithIds(command.Arguments, SkipBlockWaitStreamsPosition); 
+            }
+            
             var waitTime = int.Parse(command.Arguments[1].ToString());
-            await Task.Delay(TimeSpan.FromMilliseconds(waitTime), cancellationToken);
-            position = 3; // Skip BLOCK, WAIT TIME AND `STREAMS` 
+
+            if (waitTime == 0)
+            {
+                await _listener.WaitForNewDataAsync(streamKeysWithIds[0].streamKey);
+            }
+            else
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(waitTime), cancellationToken);
+            }
         }
         else
         {
-            position = 1; //Skip `STREAMS`
+            streamKeysWithIds = ExtractStreamKeysWithIds(command.Arguments, SkipStreamsPosition); 
         }
-        var streamKeysWithIds = ExtractStreamKeysWithIds(command, position);
-
+        
         var streamResults = streamKeysWithIds
             .Select(streamKey => ProcessStream(streamKey.streamKey, streamKey.streamId))
             .Where(result => result is not BulkStringEmptyResult)
@@ -44,22 +67,47 @@ public class XReadCommandHandler : ICommandHandler<Command>
             return ArrayResult.Create(streamResults);
         }
         
-        return new BulkStringEmptyResult();
+        return new ArrayEmptyResult();
     }
 
-    private List<(string streamKey, string streamId)> ExtractStreamKeysWithIds(Command command, int startPosition)
+    private List<(string streamKey, string streamId)> ExtractStreamKeysWithIds(object[] arguments, int startPosition)
     {
-        var count = (command.Arguments.Length - startPosition) / ArgumentKeyDivider;
-        
+        var count = (arguments.Length - startPosition) / ArgumentKeyDivider;
         var streamKeys = new List<(string, string)>();
         while (count > 0)
         {
-            var key = command.Arguments[startPosition].ToString();
-            var id = command.Arguments[^count].ToString();
+            var key = arguments[startPosition].ToString();
+            var id = arguments[^count].ToString();
             
             count--;
             startPosition++;
             streamKeys.Add((key, id));
+        }
+        
+        return streamKeys;
+    }
+    
+    private List<(string streamKey, string streamId)> ExtractLatestIdsFromStreams(object[] arguments, int startPosition)
+    {
+        var streamKeys = new List<(string, string)>();
+        
+        var steamKeysCounter = arguments.Length - startPosition;
+        var cursor = startPosition;
+        
+        Console.WriteLine($"Processing stream");
+        while (steamKeysCounter > 0)
+        {
+            var streamKey = arguments[cursor].ToString();
+            
+            Console.WriteLine($"Processing stream {streamKey}");
+            
+            var stream = _storage.GetStream(streamKey);
+            var lastStreamEntry = stream.ReadLatest();
+            
+            streamKeys.Add((streamKey, lastStreamEntry.Id));
+
+            steamKeysCounter--;
+            cursor++;
         }
         
         return streamKeys;
@@ -85,7 +133,7 @@ public class XReadCommandHandler : ICommandHandler<Command>
         return ArrayResult.Create(BulkStringResult.Create(streamKey), ArrayResult.Create(streamResult.ToArray()));
     }
 
-    private ArrayResult ProcessEntry(StreamEntry entry) // Assuming entry type
+    private ArrayResult ProcessEntry(StreamEntry entry)
     {
         var id = BulkStringResult.Create(entry.Id);
         var fields = new List<BulkStringResult>();

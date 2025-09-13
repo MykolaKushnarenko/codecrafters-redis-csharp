@@ -48,7 +48,7 @@ public class MasterClient : IMasterClient
         return new CommunicationResult() { Succeeded = false };
     }
 
-    private async Task<RaspProtocolData?> ReceiveInternalAsync(CancellationToken cancellationToken)
+    private async Task<RaspProtocolData> ReceiveInternalAsync(CancellationToken cancellationToken)
     {
         try
         {

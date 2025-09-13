@@ -61,6 +61,16 @@ public class RedisStream
         }
     }
     
+    public StreamEntry ReadLatest()
+    {
+        lock (_syncLock)
+        {
+            return _entries
+                .Last()
+                .Value;
+        }
+    }
+    
     private int CompareIds(string id1, string id2)
     {
         if (id1 == "-") return -1;

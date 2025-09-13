@@ -25,7 +25,7 @@ public class RepconfCommandHandler : ICommandHandler<Command>
     
     public string HandlingCommandName => Constants.RepconfCommand;
     
-    public async Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
+    public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         Console.WriteLine("Handling Repconf Command");
         var subCommand = command.Arguments[0].ToString();
@@ -33,20 +33,20 @@ public class RepconfCommandHandler : ICommandHandler<Command>
         if (subCommand.Equals("listening-port", StringComparison.CurrentCultureIgnoreCase) || 
             subCommand.Equals("capa", StringComparison.CurrentCultureIgnoreCase))
         {
-            return SimpleStringResult.Create(Constants.OkResponse);
+            return Task.FromResult<CommandResult>(SimpleStringResult.Create(Constants.OkResponse));
         }
 
         if (subCommand.Equals("GETACK", StringComparison.CurrentCultureIgnoreCase))
         {
-            return ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create(_acknowledge.TotalProcessedCommandBytes.ToString()));
+            return Task.FromResult<CommandResult>(ArrayResult.Create(BulkStringResult.Create("REPLCONF"), BulkStringResult.Create("ACK"), BulkStringResult.Create(_acknowledge.TotalProcessedCommandBytes.ToString())));
         }
 
         if (subCommand.Equals("ACK", StringComparison.CurrentCultureIgnoreCase))
         {
             _replicationManager.MarkReplicaAsSynced();
-            return new MasterReplicationResult();
+            return Task.FromResult<CommandResult>(new MasterReplicationResult());
         }
         
-        return ErrorResult.Create($"unknown command {subCommand}");
+        return Task.FromResult<CommandResult>(ErrorResult.Create($"unknown command {subCommand}"));
     }
 }

@@ -18,6 +18,6 @@ public class CommandHandlerFactory : ICommandHandlerFactory
         _commandHandlerMap = handler.ToDictionary(x => x.HandlingCommandName, x => x);
     }
 
-    public ICommandHandler<Command>? GetHandler(string commandName) =>
+    public ICommandHandler<Command> GetHandler(string commandName) =>
         _commandHandlerMap!.GetValueOrDefault(commandName, null);
 }

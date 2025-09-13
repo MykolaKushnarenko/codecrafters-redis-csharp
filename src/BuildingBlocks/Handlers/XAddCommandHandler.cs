@@ -1,8 +1,8 @@
-using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Exceptions;
+using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 
 namespace DotRedis.BuildingBlocks.Handlers;
@@ -14,10 +14,12 @@ namespace DotRedis.BuildingBlocks.Handlers;
 public class XAddCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;
+    private readonly RedisStreamListener _listener;
 
-    public XAddCommandHandler(RedisStorage storage)
+    public XAddCommandHandler(RedisStorage storage, RedisStreamListener listener)
     {
         _storage = storage;
+        _listener = listener;
     }
 
     public string HandlingCommandName => Constants.XAddCommand;
@@ -35,6 +37,7 @@ public class XAddCommandHandler : ICommandHandler<Command>
         try
         {
             var result = _storage.XAdd(key!, id!, fields);
+            _listener.Signal(key);
             return Task.FromResult<CommandResult>(BulkStringResult.Create(result!));
         }
         catch (RedisException e)

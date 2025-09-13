@@ -22,7 +22,7 @@ public static class RaspProtocolParser
         return bulkString;
     }
     
-    public static async Task<RaspProtocolData?> ParseCommand(Stream input, CancellationToken cancellationToken)
+    public static async Task<RaspProtocolData> ParseCommand(Stream input, CancellationToken cancellationToken)
     {
         var result = await ParseProtocol(input, cancellationToken);
 
