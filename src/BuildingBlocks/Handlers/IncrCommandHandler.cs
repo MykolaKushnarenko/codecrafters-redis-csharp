@@ -23,8 +23,8 @@ public class IncrCommandHandler : ICommandHandler<Command>
 
         if (redisValue == RedisValue.Null)
         {
-            const int defaultValue = 1; // default value if key does not exist
-            _storage.Set(key, RedisValue.Create(1));
+            const long defaultValue = 1; // default value if key does not exist
+            _storage.Set(key, RedisValue.Create(defaultValue));
             return Task.FromResult<CommandResult>(IntegerResult.Create(defaultValue));
         }
 
