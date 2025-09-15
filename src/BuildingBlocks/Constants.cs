@@ -5,7 +5,6 @@ public static class Constants
     public const string EOL = "\r\n";
     public const string OkResponse = "OK";
     public const string PongResponse = "PONG";
-    public const string BulkStringEmptyResponse = "$-1\r\n";
 
     public const string PingCommand = "PING";
     public const string EchoCommand = "ECHO";
@@ -21,6 +20,7 @@ public static class Constants
     public const string XAddCommand = "XADD";
     public const string XRangeCommand = "XRANGE";
     public const string XReadCommand = "XREAD";
+    public const string IncrCommand = "INCR";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";

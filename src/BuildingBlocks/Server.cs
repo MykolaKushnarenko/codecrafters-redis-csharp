@@ -52,7 +52,7 @@ public class Server
                 .ContinueWith(_ =>
             {
                 socket.Close();
-            });
+            }, cancellation);
         }
     }
     
@@ -70,11 +70,6 @@ public class Server
                 {
                     _replicationManager.AddSlaveForReplication(networkStream);
                 }
-                
-                if (raspProtocolData is null)
-                {
-                    continue;
-                }
 
                 raspProtocolData.CommandByteLength = measuredNetworkStream.ProcessedCommandBytes;
                 
@@ -82,7 +77,6 @@ public class Server
             
                 foreach (var rawResponse in RaspConverter.Convert(result).Where(x => x.Length > 0))
                 {
-                    Console.WriteLine("Sending back to master");
                     await measuredNetworkStream.WriteAsync(rawResponse, cancellationToken);
                     await measuredNetworkStream.FlushAsync(cancellationToken);
                 }
