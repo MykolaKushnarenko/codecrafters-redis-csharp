@@ -47,6 +47,8 @@ public class Server
         {
             var socket = await listener.AcceptSocketAsync(cancellation);
     
+            Console.WriteLine($"Accepted connection from {socket.RemoteEndPoint}");
+            
             // fire and forgot
             _ = HandleClientRequest(socket, cancellation)
                 .ContinueWith(_ =>

@@ -1,5 +1,4 @@
 using System.Text;
-using codecrafters_redis.BuildingBlocks;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 

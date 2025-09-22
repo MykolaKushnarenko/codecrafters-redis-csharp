@@ -24,12 +24,17 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AcknowledgeCommandTracker>();
         services.AddSingleton<RedisStorage>();
         services.AddSingleton<RedisStreamListener>();
+        services.AddSingleton<TransactionManager>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
-                .AddClasses(c => c.AssignableTo<ICommandHandler<Command>>())
+                .AddClasses(c => c.AssignableTo<ICommandHandler<Command>>().Where(x => x.Name != "TransactionCommandHandlerDecorator" && x.Name != "MultiCommandHandler"))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime());
+        
+        services.Decorate<ICommandHandler<Command>, TransactionCommandHandlerDecorator>();
+        
+        services.AddSingleton<ICommandHandler<Command>, MultiCommandHandler>();
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);
