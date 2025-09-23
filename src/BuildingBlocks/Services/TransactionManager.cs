@@ -13,13 +13,17 @@ public class TransactionManager
         _context.Value = new Transaction();
     }
     
-    public async Task CommitAsync(CancellationToken cancellationToken)
+    public async Task<CommandResult> CommitAsync(CancellationToken cancellationToken)
     {
+        List<CommandResult> results = [];
         var transaction = _context.Value;
         foreach (var action in transaction.Actions)
         {
-            await action.ExecuteAsync(cancellationToken);
+             var handleResult = await action.ExecuteAsync(cancellationToken);
+             results.Add(handleResult);
         }
+        
+        return ArrayResult.Create(results.ToArray());
     }
 
     public void BeginTransaction()
