@@ -11,6 +11,8 @@ namespace DotRedis.BuildingBlocks.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    private static List<string> _excludedHandlersFromDecoration = [nameof(MultiCommandHandler), nameof(ExecCommandHandler), nameof(TransactionCommandHandlerDecorator)];
+    
     public static IServiceCollection AddBuildingBlocks(this IServiceCollection services, string[] args)
     {
         services.AddSingleton<Server>();
@@ -28,13 +30,14 @@ public static class ServiceCollectionExtensions
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
-                .AddClasses(c => c.AssignableTo<ICommandHandler<Command>>().Where(x => x.Name != "TransactionCommandHandlerDecorator" && x.Name != "MultiCommandHandler"))
+                .AddClasses(c => c.AssignableTo<ICommandHandler<Command>>().Where(t => !_excludedHandlersFromDecoration.Contains(t.Name)))
                 .AsImplementedInterfaces()
                 .WithSingletonLifetime());
         
         services.Decorate<ICommandHandler<Command>, TransactionCommandHandlerDecorator>();
         
         services.AddSingleton<ICommandHandler<Command>, MultiCommandHandler>();
+        services.AddSingleton<ICommandHandler<Command>, ExecCommandHandler>();
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);

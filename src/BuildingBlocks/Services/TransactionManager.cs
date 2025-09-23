@@ -23,6 +23,9 @@ public class TransactionManager
              results.Add(handleResult);
         }
         
+        _context.Value.HasStarted = false;
+        _context.Value.Actions = [];
+        
         return ArrayResult.Create(results.ToArray());
     }
 
