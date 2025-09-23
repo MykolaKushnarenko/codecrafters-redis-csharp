@@ -22,7 +22,7 @@ public class MasterClient : IMasterClient
     public MasterClient(ServerConfiguration configuration)
     {
         _configuration = configuration;
-        _socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     }
 
     public MeasuredNetworkStream Network => _measuredNetworkStream;
@@ -160,7 +160,7 @@ public class MasterClient : IMasterClient
         }
 
         var host = await Dns.GetHostEntryAsync(_configuration.MasterHost, cancellationToken);
-        var ipEndPoint = new IPEndPoint(host.AddressList[0], _configuration.MasterPort);
+        var ipEndPoint = new IPEndPoint(host.AddressList.First(x => x.AddressFamily == AddressFamily.InterNetwork), _configuration.MasterPort);
 
         try
         {
@@ -170,6 +170,7 @@ public class MasterClient : IMasterClient
         }
         catch (Exception e)
         {
+            Console.WriteLine("Connection failed.");
             Console.WriteLine(e);
             throw;
         }
