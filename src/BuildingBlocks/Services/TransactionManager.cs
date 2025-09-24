@@ -7,6 +7,8 @@ public class TransactionManager
 {
     private readonly AsyncLocal<Transaction> _context = new();
 
+    public bool HasStarted => _context.Value.HasStarted;
+    
     public void Initiate()
     {
         _context.Value = new Transaction();
@@ -38,7 +40,11 @@ public class TransactionManager
         _context.Value.Actions.Add(action);
     }
     
-    public bool HasStarted => _context.Value.HasStarted;
+    public void Discard()
+    {
+        _context.Value.HasStarted = false;
+        _context.Value.Actions = [];
+    }
 }
 
 

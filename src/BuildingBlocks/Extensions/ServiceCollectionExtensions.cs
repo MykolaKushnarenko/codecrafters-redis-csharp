@@ -11,7 +11,13 @@ namespace DotRedis.BuildingBlocks.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    private static List<string> _excludedHandlersFromDecoration = [nameof(MultiCommandHandler), nameof(ExecCommandHandler), nameof(TransactionCommandHandlerDecorator)];
+    private static List<string> _excludedHandlersFromDecoration =
+    [
+        nameof(MultiCommandHandler), 
+        nameof(ExecCommandHandler), 
+        nameof(TransactionCommandHandlerDecorator),
+        nameof(DiscardCommandHandler)
+    ];
     
     public static IServiceCollection AddBuildingBlocks(this IServiceCollection services, string[] args)
     {
@@ -35,9 +41,9 @@ public static class ServiceCollectionExtensions
                 .WithSingletonLifetime());
         
         services.Decorate<ICommandHandler<Command>, TransactionCommandHandlerDecorator>();
-        
         services.AddSingleton<ICommandHandler<Command>, MultiCommandHandler>();
         services.AddSingleton<ICommandHandler<Command>, ExecCommandHandler>();
+        services.AddSingleton<ICommandHandler<Command>, DiscardCommandHandler>();
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);
