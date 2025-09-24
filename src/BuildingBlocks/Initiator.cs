@@ -3,6 +3,7 @@ using DotRedis.BuildingBlocks.Communication;
 using DotRedis.BuildingBlocks.Configurations;
 using DotRedis.BuildingBlocks.Parsers;
 using DotRedis.BuildingBlocks.Rdb;
+using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 
 namespace DotRedis.BuildingBlocks;
@@ -19,13 +20,14 @@ public class Initiator
     private readonly IMasterClient _masterClient;
     private readonly IMediator _mediator;
     private readonly AcknowledgeCommandTracker _tracker;
+    private readonly TransactionManager _manager;
 
     public Initiator(
         ServerConfiguration configuration, 
         RedisStorage storage, 
         WatchDog watchDog,
         IMasterClient masterClient, 
-        IMediator mediator, AcknowledgeCommandTracker tracker)
+        IMediator mediator, AcknowledgeCommandTracker tracker, TransactionManager manager)
     {
         _configuration = configuration;
         _storage = storage;
@@ -33,6 +35,7 @@ public class Initiator
         _masterClient = masterClient;
         _mediator = mediator;
         _tracker = tracker;
+        _manager = manager;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -63,6 +66,8 @@ public class Initiator
         //TODO: Duplicate code. We need to refactor this.
         _ = Task.Run(async () =>
         {
+            _manager.Initiate();
+            
             while (!cancellationToken.IsCancellationRequested)
             {
                 try

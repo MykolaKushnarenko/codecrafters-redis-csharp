@@ -1,14 +1,13 @@
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
-using DotRedis.BuildingBlocks.HandlerFactory;
 
 namespace DotRedis.BuildingBlocks.Services;
 
 public class TransactionManager
 {
-    private readonly AsyncLocal<Transaction> _context = new AsyncLocal<Transaction>();
+    private readonly AsyncLocal<Transaction> _context = new();
 
-    public TransactionManager()
+    public void Initiate()
     {
         _context.Value = new Transaction();
     }

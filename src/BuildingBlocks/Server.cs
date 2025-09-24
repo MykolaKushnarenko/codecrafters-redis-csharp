@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Sockets;
 using DotRedis.BuildingBlocks.Configurations;
 using DotRedis.BuildingBlocks.Parsers;
+using DotRedis.BuildingBlocks.Services;
 
 namespace DotRedis.BuildingBlocks;
 
@@ -17,6 +18,7 @@ public class Server
     private readonly Initiator _initiator;
     private readonly ReplicationManager _replicationManager;
     private readonly AcknowledgeCommandTracker _acknowledge;
+    private readonly TransactionManager _transactionManager;
 
     public Server(
         IMediator mediator, 
@@ -24,7 +26,8 @@ public class Server
         ApplicationLifetime applicationLifetime,
         Initiator initiator, 
         ReplicationManager replicationManager, 
-        AcknowledgeCommandTracker acknowledge)
+        AcknowledgeCommandTracker acknowledge, 
+        TransactionManager transactionManager)
     {
         _mediator = mediator;
         _configuration = configuration;
@@ -32,6 +35,7 @@ public class Server
         _initiator = initiator;
         _replicationManager = replicationManager;
         _acknowledge = acknowledge;
+        _transactionManager = transactionManager;
     }
 
     public async Task RunAsync()
@@ -62,6 +66,8 @@ public class Server
     {
         try
         {
+            _transactionManager.Initiate();
+
             await using var networkStream = new NetworkStream(socket, FileAccess.ReadWrite);
             await using var measuredNetworkStream = new MeasuredNetworkStream(networkStream);
             while (!cancellationToken.IsCancellationRequested || !socket.Connected)

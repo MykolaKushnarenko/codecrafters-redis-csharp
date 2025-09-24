@@ -40,6 +40,11 @@ public class GetCommandHandler : ICommandHandler<Command>
         
         var value = _storage.Get(key!);
 
+        if (value == RedisValue.Null)
+        {
+            return Task.FromResult<CommandResult>(new BulkStringEmptyResult());
+        }
+        
         return Task.FromResult<CommandResult>(BulkStringResult.Create(value.Value.ToString()!));
     }
 }
