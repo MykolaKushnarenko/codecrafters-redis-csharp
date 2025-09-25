@@ -3,7 +3,7 @@ using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 
 public class XReadCommandHandler : ICommandHandler<Command>
 {

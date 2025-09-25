@@ -2,6 +2,7 @@ using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Communication;
 using DotRedis.BuildingBlocks.HandlerFactory;
 using DotRedis.BuildingBlocks.Handlers;
+using DotRedis.BuildingBlocks.Handlers.WriteCommnds.Transactions;
 using DotRedis.BuildingBlocks.Helpers;
 using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;

@@ -3,7 +3,7 @@ using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds;
 
 public class RPushCommandHandler : ICommandHandler<Command>
 {

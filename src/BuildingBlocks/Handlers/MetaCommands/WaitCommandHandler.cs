@@ -1,8 +1,7 @@
-using codecrafters_redis.BuildingBlocks;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.MetaCommands;
 
 /// <summary>
 ///     Handles the "WAIT" command, which waits for replication acknowledgments from a specified

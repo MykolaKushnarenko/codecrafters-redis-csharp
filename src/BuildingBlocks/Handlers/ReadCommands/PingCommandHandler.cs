@@ -1,9 +1,8 @@
-using codecrafters_redis.BuildingBlocks;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Configurations;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 
 /// <summary>
 ///     Handles the processing of the PING command in the Redis-like system.

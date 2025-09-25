@@ -1,11 +1,10 @@
-using codecrafters_redis.BuildingBlocks;
 using codecrafters_redis.BuildingBlocks.Storage;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Configurations;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds;
 
 /// <summary>
 ///     Handles the Redis "SET" command, allowing for the storage of a key-value pair

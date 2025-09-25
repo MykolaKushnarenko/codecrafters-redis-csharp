@@ -1,8 +1,7 @@
-using codecrafters_redis.BuildingBlocks;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 
 /// <summary>
 ///     Handles the "ECHO" command in a Redis-like system.

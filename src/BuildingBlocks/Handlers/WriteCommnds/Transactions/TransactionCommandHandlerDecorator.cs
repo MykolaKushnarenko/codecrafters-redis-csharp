@@ -2,7 +2,7 @@ using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Services;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds.Transactions;
 
 public class TransactionCommandHandlerDecorator : ICommandHandler<Command>
 {

@@ -1,10 +1,8 @@
-using codecrafters_redis.BuildingBlocks;
-using codecrafters_redis.BuildingBlocks.Storage;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 
 /// <summary>
 ///     Handles the execution of the "KEYS" command within a Redis-like system.

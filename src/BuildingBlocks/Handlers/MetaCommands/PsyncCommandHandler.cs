@@ -2,7 +2,7 @@ using System.Text;
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 
-namespace DotRedis.BuildingBlocks.Handlers;
+namespace DotRedis.BuildingBlocks.Handlers.MetaCommands;
 
 /// <summary>
 ///     Handles the processing of the PSYNC command within the Redis-like system.
