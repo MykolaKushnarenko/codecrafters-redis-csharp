@@ -19,9 +19,14 @@ public class RPushCommandHandler : ICommandHandler<Command>
     public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var key = command.Arguments[0].ToString();
-        var value = command.Arguments[1].ToString();
         
-        var numberOfItem = _storage.Push(key, RedisValue.Create(value));
+        var numberOfItem = 0;
+        
+        foreach (var argument in command.Arguments.Skip(1))
+        {
+            var value = command.Arguments[1].ToString();
+            numberOfItem = _storage.Push(key, RedisValue.Create(value));
+        }
         
         return Task.FromResult<CommandResult>(IntegerResult.Create(numberOfItem));
     }
