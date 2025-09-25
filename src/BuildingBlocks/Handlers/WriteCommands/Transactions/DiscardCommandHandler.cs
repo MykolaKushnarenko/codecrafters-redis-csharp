@@ -2,7 +2,7 @@ using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Services;
 
-namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds.Transactions;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommands.Transactions;
 
 public class DiscardCommandHandler : ICommandHandler<Command>
 {

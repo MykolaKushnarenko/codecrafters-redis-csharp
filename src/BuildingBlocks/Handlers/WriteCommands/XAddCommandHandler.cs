@@ -5,7 +5,7 @@ using DotRedis.BuildingBlocks.Exceptions;
 using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommands;
 
 /// <summary>
 ///     Handles the execution of the "XADD" command for a Redis-like system.

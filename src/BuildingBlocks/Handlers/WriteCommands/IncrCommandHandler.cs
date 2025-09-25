@@ -3,7 +3,7 @@ using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommands;
 
 public class IncrCommandHandler : ICommandHandler<Command>
 {

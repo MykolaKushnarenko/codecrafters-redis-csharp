@@ -4,7 +4,7 @@ using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Configurations;
 using DotRedis.BuildingBlocks.Storage;
 
-namespace DotRedis.BuildingBlocks.Handlers.WriteCommnds;
+namespace DotRedis.BuildingBlocks.Handlers.WriteCommands;
 
 /// <summary>
 ///     Handles the Redis "SET" command, allowing for the storage of a key-value pair
