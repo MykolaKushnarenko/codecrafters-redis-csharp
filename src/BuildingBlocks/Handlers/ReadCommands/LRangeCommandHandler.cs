@@ -20,12 +20,7 @@ public class LRangeCommandHandler : ICommandHandler<Command>
     {
         var key = command.Arguments[0].ToString();
         var start = int.Parse(command.Arguments[1].ToString());
-        var end = int.Parse(command.Arguments[2].ToString()); // +1 to include the last element in the range;
-
-        if (start > end)
-        {
-            return Task.FromResult<CommandResult>(ArrayResult.Create());
-        }
+        var end = int.Parse(command.Arguments[2].ToString());
         
         var redisValue = _storage.Get(key);
         if (redisValue == RedisValue.Null || redisValue.Type != RedisValueType.List)
@@ -40,6 +35,25 @@ public class LRangeCommandHandler : ICommandHandler<Command>
         if (end > list.Count)
         {
             end = list.Count - 1;
+        }
+
+        if (end < 0)
+        {
+            end = list.Count + end;
+        }
+        
+        if (start < 0)
+        {
+            start = list.Count + start;
+            if (start < 0)
+            {
+                start = 0;
+            }
+        }
+
+        if (start > list.Count || start > end) 
+        {
+            return Task.FromResult<CommandResult>(ArrayResult.Create());
         }
         
         for (var i = start; i <= end; i++)
