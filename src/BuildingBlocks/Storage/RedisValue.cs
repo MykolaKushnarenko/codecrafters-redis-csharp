@@ -5,6 +5,18 @@ namespace codecrafters_redis.BuildingBlocks.Storage;
 
 public class RedisValue
 {
+    public static readonly RedisValue Null = new();
+    
+    private RedisValue()
+    {
+    }
+    
+    private RedisValue(RedisValueType type, object value)
+    {
+        Type = type;
+        Value = value;
+    }
+    
     public RedisValueType Type { get; }
     public object Value { get; set; }
 
@@ -30,17 +42,5 @@ public class RedisValue
         }
         
         return new RedisValue(RedisValueType.String, s);
-    }
-
-    public static readonly RedisValue Null = new();
-
-    private RedisValue()
-    {
-    }
-    
-    private RedisValue(RedisValueType type, object value)
-    {
-        Type = type;
-        Value = value;
     }
 }

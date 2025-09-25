@@ -54,4 +54,16 @@ public class RedisStorage
     {
         return _streams.GetValueOrDefault(key, null);
     }
+
+    public int Push(string key, RedisValue value)
+    {
+        var redisValue = _data.GetOrAdd(key, _ => RedisValue.Create(new List<RedisValue>()));
+        
+        var list = (List<RedisValue>)redisValue.Value;
+        list.Add(value);
+
+        _data[key] = redisValue;
+        
+        return list.Count;
+    }
 }
