@@ -24,7 +24,7 @@ public class RPushCommandHandler : ICommandHandler<Command>
         
         foreach (var argument in command.Arguments.Skip(1))
         {
-            var value = command.Arguments[1].ToString();
+            var value = argument.ToString();
             numberOfItem = _storage.Push(key, RedisValue.Create(value));
         }
         
