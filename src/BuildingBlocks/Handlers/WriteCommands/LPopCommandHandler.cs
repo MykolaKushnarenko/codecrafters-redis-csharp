@@ -20,6 +20,13 @@ public class LPopCommandHandler : ICommandHandler<Command>
     public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
         var key = command.Arguments[0].ToString();
+
+        var count = 1;
+        
+        if (command.Arguments.Length > 1)
+        {
+            count = int.Parse(command.Arguments[1].ToString());
+        }
         
         var redisValue = _storage.Get(key);
         if (redisValue == RedisValue.Null || redisValue.Type != RedisValueType.List)
@@ -33,10 +40,21 @@ public class LPopCommandHandler : ICommandHandler<Command>
         {
             return Task.FromResult<CommandResult>(new BulkStringEmptyResult());
         }
+
+        if (count > list.Count)
+        {
+            count = list.Count;
+        }
         
-        var first = list.FirstOrDefault();
-        list.RemoveAt(0);
+        var result = new List<BulkStringResult>();
         
-        return Task.FromResult<CommandResult>(BulkStringResult.Create(first.Value.ToString()));
+        for (var i = 0; i < count; i++)
+        {
+            var first = list.FirstOrDefault();
+            list.RemoveAt(0);
+            result.Add(BulkStringResult.Create(first.Value.ToString()));
+        }
+        
+        return Task.FromResult<CommandResult>(result.Count == 1 ? result[0] : ArrayResult.Create(result.ToArray()));
     }
 }
