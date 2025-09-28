@@ -27,6 +27,7 @@ public static class Constants
     public const string RPushCommand = "RPUSH";
     public const string LPushCommand = "LPUSH";
     public const string LRangeCommand = "LRANGE";
+    public const string LLenCommand = "LLEN";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";
