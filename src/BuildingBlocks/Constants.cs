@@ -25,6 +25,7 @@ public static class Constants
     public const string ExecCommand = "EXEC";
     public const string DiscardCommand = "DISCARD";
     public const string RPushCommand = "RPUSH";
+    public const string LPushCommand = "LPUSH";
     public const string LRangeCommand = "LRANGE";
     
     public const string DirArgument = "--dir";

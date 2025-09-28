@@ -5,16 +5,16 @@ using DotRedis.BuildingBlocks.Storage;
 
 namespace DotRedis.BuildingBlocks.Handlers.WriteCommands;
 
-public class RPushCommandHandler : ICommandHandler<Command>
+public class LPushCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;
 
-    public RPushCommandHandler(RedisStorage storage)
+    public LPushCommandHandler(RedisStorage storage)
     {
         _storage = storage;
     }
 
-    public string HandlingCommandName => Constants.RPushCommand;
+    public string HandlingCommandName => Constants.LPushCommand;
     
     public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
@@ -25,7 +25,7 @@ public class RPushCommandHandler : ICommandHandler<Command>
         foreach (var argument in command.Arguments.Skip(1))
         {
             var value = argument.ToString();
-            numberOfItem = _storage.RPush(key, RedisValue.Create(value));
+            numberOfItem = _storage.LPush(key, RedisValue.Create(value));
         }
         
         return Task.FromResult<CommandResult>(IntegerResult.Create(numberOfItem));
