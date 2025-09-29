@@ -23,8 +23,45 @@ public class BLPopCommandHandler : ICommandHandler<Command>
     {
         var key = command.Arguments[0].ToString();
 
-        var priorRedisValue = _storage.Get(key); 
+        var priorRedisValue = _storage.Get(key);
+
+        var priorList = GetListOrDefault(priorRedisValue);
         
+        var timeToWait = double.Parse(command.Arguments[1].ToString());
+
+        if (timeToWait == 0)
+        {
+            await _listener.WaitForNewDataAsync(key);
+        }
+        else
+        {
+            await Task.Delay(TimeSpan.FromSeconds(timeToWait), cancellationToken);
+        }
+        
+        var currentRedisValue = _storage.Get(key);
+        var currentList = GetListOrDefault(currentRedisValue);
+
+        var diff = currentList.Except(priorList).ToList();
+
+        var result = new List<CommandResult>();
+        foreach (var item in diff)
+        {
+            result.Add(BulkStringResult.Create(item.Value.ToString()));
+        }
+
+        if (result.Count == 0)
+        {
+            return new ArrayEmptyResult();
+        }
+        
+        var arrayResult = ArrayResult.Create(BulkStringResult.Create(key));
+        arrayResult.Add(result.ToArray());
+
+        return arrayResult;
+    }
+
+    private static List<RedisValue> GetListOrDefault(RedisValue priorRedisValue)
+    {
         List<RedisValue> priorList;
         if (priorRedisValue == RedisValue.Null)
         {
@@ -34,33 +71,7 @@ public class BLPopCommandHandler : ICommandHandler<Command>
         {
             priorList = (List<RedisValue>)priorRedisValue.Value;
         }
-        
-        var timeToWait = int.Parse(command.Arguments[1].ToString());
 
-        if (timeToWait == 0)
-        {
-            await _listener.WaitForNewDataAsync(key);
-        }
-        else
-        {
-            await Task.Delay(timeToWait, cancellationToken);
-        }
-        
-        var currentRedisValue = _storage.Get(key);
-        var currentList = (List<RedisValue>)currentRedisValue.Value;
-
-        var diff = currentList.Except(priorList).ToList();
-
-        var result = new List<CommandResult>();
-
-        foreach (var item in diff)
-        {
-            result.Add(BulkStringResult.Create(item.Value.ToString()));
-        }
-        
-        var arrayResult = ArrayResult.Create(BulkStringResult.Create(key));
-        arrayResult.Add(result.ToArray());
-
-        return arrayResult;
+        return priorList;
     }
 }
