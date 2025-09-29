@@ -34,4 +34,9 @@ public class ArrayResult : CommandResult
     {
         return new ArrayResult(items);
     }
+    
+    public void Add(params CommandResult[] items)
+    {
+        Items.AddRange(items);
+    }
 }

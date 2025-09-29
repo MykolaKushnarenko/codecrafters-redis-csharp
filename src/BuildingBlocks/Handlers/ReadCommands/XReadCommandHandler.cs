@@ -9,12 +9,12 @@ public class XReadCommandHandler : ICommandHandler<Command>
 {
     private const int ArgumentKeyDivider = 2;
     private readonly RedisStorage _storage;
-    private readonly RedisStreamListener _listener;
+    private readonly RedisValueListener _listener;
 
     private const int SkipBlockWaitStreamsPosition = 3;
     private const int SkipStreamsPosition = 1;
     
-    public XReadCommandHandler(RedisStorage storage, RedisStreamListener listener)
+    public XReadCommandHandler(RedisStorage storage, RedisValueListener listener)
     {
         _storage = storage;
         _listener = listener;

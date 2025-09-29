@@ -14,9 +14,9 @@ namespace DotRedis.BuildingBlocks.Handlers.WriteCommands;
 public class XAddCommandHandler : ICommandHandler<Command>
 {
     private readonly RedisStorage _storage;
-    private readonly RedisStreamListener _listener;
+    private readonly RedisValueListener _listener;
 
-    public XAddCommandHandler(RedisStorage storage, RedisStreamListener listener)
+    public XAddCommandHandler(RedisStorage storage, RedisValueListener listener)
     {
         _storage = storage;
         _listener = listener;

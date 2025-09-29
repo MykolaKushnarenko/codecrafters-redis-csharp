@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ReplicationManager>();
         services.AddSingleton<AcknowledgeCommandTracker>();
         services.AddSingleton<RedisStorage>();
-        services.AddSingleton<RedisStreamListener>();
+        services.AddSingleton<RedisValueListener>();
         services.AddSingleton<TransactionManager>();
 
         services.Scan(x =>

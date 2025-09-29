@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace DotRedis.BuildingBlocks.Services;
 
-public class RedisStreamListener
+public class RedisValueListener
 {
     // potensial problem. 2 clients cannot wait for one stream.
     private readonly ConcurrentDictionary<string, TaskCompletionSource> _taskListenerSources = new();

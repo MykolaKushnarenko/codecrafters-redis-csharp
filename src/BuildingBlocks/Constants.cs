@@ -29,6 +29,7 @@ public static class Constants
     public const string LRangeCommand = "LRANGE";
     public const string LLenCommand = "LLEN";
     public const string LPopCommand = "LPOP";
+    public const string BLPopCommand = "BLPOP";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";

@@ -14,7 +14,6 @@ public class LLenCommandHandler : ICommandHandler<Command>
         _storage = storage;
     }
 
-
     public string HandlingCommandName => Constants.LLenCommand;
     
     public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
