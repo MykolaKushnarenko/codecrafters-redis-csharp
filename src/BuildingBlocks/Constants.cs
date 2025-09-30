@@ -30,6 +30,7 @@ public static class Constants
     public const string LLenCommand = "LLEN";
     public const string LPopCommand = "LPOP";
     public const string BLPopCommand = "BLPOP";
+    public const string SubscribeCommand = "SUBSCRIBE";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";

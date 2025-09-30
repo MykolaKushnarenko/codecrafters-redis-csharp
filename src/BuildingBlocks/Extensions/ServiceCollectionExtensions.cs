@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RedisStorage>();
         services.AddSingleton<RedisValueListener>();
         services.AddSingleton<TransactionManager>();
+        services.AddSingleton<SubscriptionManager>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
