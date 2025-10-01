@@ -21,13 +21,17 @@ public class Initiator
     private readonly IMediator _mediator;
     private readonly AcknowledgeCommandTracker _tracker;
     private readonly TransactionManager _manager;
+    private readonly SubscriptionManager _subscriptionManager;
 
     public Initiator(
         ServerConfiguration configuration, 
         RedisStorage storage, 
         WatchDog watchDog,
         IMasterClient masterClient, 
-        IMediator mediator, AcknowledgeCommandTracker tracker, TransactionManager manager)
+        IMediator mediator, 
+        AcknowledgeCommandTracker tracker, 
+        TransactionManager manager, 
+        SubscriptionManager subscriptionManager)
     {
         _configuration = configuration;
         _storage = storage;
@@ -36,6 +40,7 @@ public class Initiator
         _mediator = mediator;
         _tracker = tracker;
         _manager = manager;
+        _subscriptionManager = subscriptionManager;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -61,7 +66,6 @@ public class Initiator
         await _masterClient.ReceiveRdbFileAsync(cancellationToken);
 
         _masterClient.Network.Reset();
-
         
         //TODO: Duplicate code. We need to refactor this.
         _ = Task.Run(async () =>

@@ -10,51 +10,71 @@ namespace DotRedis.BuildingBlocks.Services;
 
 public class SubscriptionManager
 {
-    private readonly AsyncLocal<Subscription> _subscriber = new AsyncLocal<Subscription>();
-
-    public void Initiate(Socket subscriber)
+    private readonly Dictionary<string, List<Socket>> _subscribers = new();
+    
+    private readonly AsyncLocal<ConnectionSubscriptionMetadata> _connectionSubscriptionMetadata = new(){Value = new ConnectionSubscriptionMetadata()};
+    
+    private static readonly SemaphoreSlim Gate = new(1);
+    
+    public async Task SubscribeToChannelAsync(string channel, Socket subscriber)
     {
-        _subscriber.Value = new Subscription
+        await Gate.WaitAsync();
+        try
         {
-            Channel = [],
-            Subscriber = subscriber
-        };
+            var sockets = _subscribers.GetValueOrDefault(channel, []);
+            sockets.Add(subscriber);
+            _subscribers[channel] = sockets;
+            
+            _connectionSubscriptionMetadata.Value.HasAnySubscription = true;
+            _connectionSubscriptionMetadata.Value.ChannelSubscribedToCount++;
+        }
+        finally
+        {
+            Gate.Release();
+        }
     }
     
-    public void SubscribeToChannel(string channel)
-    {
-        if(_subscriber.Value.Channel.Contains(channel))
-            return;
-        
-        _subscriber.Value.Channel.Add(channel);
-    }
-    
-    public async ValueTask PublishMessageAsync(string channel, CommandResult commandResult, CancellationToken cancellationToken)
+    public async ValueTask<int> PublishMessageAsync(string channel, CommandResult commandResult, CancellationToken cancellationToken)
     {
         //insdead of blocking a client we need to queue messages to user
         //add error handling
 
-        if (!_subscriber.Value.Channel.Contains(channel))
-        {
-            Console.WriteLine("Not subscribed to a channel");
-            return;
-        }
-        
-        var responses = RaspConverter.Convert(commandResult).Where(x => x.Length > 0);
+        await Gate.WaitAsync();
 
-        foreach (var response in responses)
+        try
         {
-            await _subscriber.Value.Subscriber.SendAsync(response, cancellationToken);
+            var subscribers = _subscribers.GetValueOrDefault(channel, []);
+            if (subscribers.Count == 0)
+            {
+                Console.WriteLine("Not subscribed to a channel");
+                return 0;
+            }
+
+            var responses = RaspConverter.Convert(commandResult).Where(x => x.Length > 0);
+
+            foreach (var subscriber in subscribers)
+            {
+                foreach (var response in responses)
+                {
+                    await subscriber.SendAsync(response, cancellationToken);
+                }
+            }
         }
+        finally
+        {
+            Gate.Release();
+        }
+
+        return 0;
     }
     
-    public bool IsSubscribedToAnyChannel => _subscriber.Value.Channel.Count > 0;
+    public int SubscriberCount => _connectionSubscriptionMetadata.Value.ChannelSubscribedToCount;
     
-    public int SubscriberCount => _subscriber.Value.Channel.Count;
+    public bool HasAnySubscription => _connectionSubscriptionMetadata.Value.HasAnySubscription;
     
-    private class Subscription
+    private class ConnectionSubscriptionMetadata
     {
-        public List<string> Channel { get; set; }
-        public Socket Subscriber { get; set; }
+        public int ChannelSubscribedToCount { get; set; }
+        public bool HasAnySubscription { get; set; }
     }
 }

@@ -2,7 +2,8 @@ using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Communication;
 using DotRedis.BuildingBlocks.HandlerFactory;
 using DotRedis.BuildingBlocks.Handlers;
-using DotRedis.BuildingBlocks.Handlers.WriteCommands.Transactions;
+using DotRedis.BuildingBlocks.Handlers.MetaCommands.Subscription;
+using DotRedis.BuildingBlocks.Handlers.MetaCommands.Transactions;
 using DotRedis.BuildingBlocks.Helpers;
 using DotRedis.BuildingBlocks.Services;
 using DotRedis.BuildingBlocks.Storage;
@@ -17,7 +18,8 @@ public static class ServiceCollectionExtensions
         nameof(MultiCommandHandler), 
         nameof(ExecCommandHandler), 
         nameof(TransactionCommandHandlerDecorator),
-        nameof(DiscardCommandHandler)
+        nameof(DiscardCommandHandler),
+        nameof(SubscriptionProxyCommandHandler)
     ];
     
     public static IServiceCollection AddBuildingBlocks(this IServiceCollection services, string[] args)
@@ -35,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<RedisValueListener>();
         services.AddSingleton<TransactionManager>();
         services.AddSingleton<SubscriptionManager>();
+        services.AddSingleton<SocketAccessor>();
 
         services.Scan(x =>
             x.FromAssemblyOf<Command>()
@@ -46,6 +49,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICommandHandler<Command>, MultiCommandHandler>();
         services.AddSingleton<ICommandHandler<Command>, ExecCommandHandler>();
         services.AddSingleton<ICommandHandler<Command>, DiscardCommandHandler>();
+
+        //this should be the last in the chane for command handler to wrap all the commands.
+        services.Decorate<ICommandHandler<Command>, SubscriptionProxyCommandHandler>();
 
         var serverConfiguration = ServerConfigurationHelper.CreateConfiguration(args);
         services.AddSingleton(serverConfiguration);

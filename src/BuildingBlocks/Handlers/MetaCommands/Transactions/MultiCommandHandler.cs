@@ -2,7 +2,7 @@ using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Services;
 
-namespace DotRedis.BuildingBlocks.Handlers.WriteCommands.Transactions;
+namespace DotRedis.BuildingBlocks.Handlers.MetaCommands.Transactions;
 
 public class MultiCommandHandler : ICommandHandler<Command>
 {
