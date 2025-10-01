@@ -32,7 +32,7 @@ public class SubscribeCommandHandler : ICommandHandler<Command>
         
         var result = ArrayResult.Create(BulkStringResult.Create("subscribe"));
         result.Add(channelNamesResponse.ToArray());
-        result.Add(IntegerResult.Create(_subscriptionManager.SubscriberCount));
+        result.Add(IntegerResult.Create(_subscriptionManager.SubscriptionCount));
         
         return result;
     }

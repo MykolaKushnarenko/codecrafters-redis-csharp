@@ -72,11 +72,32 @@ public class SubscriptionManager
         {
             Gate.Release();
         }
+    }
 
-        return 0;
+    public async Task UnsubscribeAsync(string channel, Socket socket, CancellationToken cancellationToken)
+    {
+        await Gate.WaitAsync(cancellationToken);
+        try
+        {
+            var subscribers = _subscribers[channel];
+            if (subscribers.Count == 0)
+            {
+                return;
+            }
+
+            subscribers.Remove(socket);
+
+            _subscribers[channel] = subscribers;
+
+            _connectionSubscriptionMetadata.Value.ChannelSubscribedToCount--;
+        }
+        finally
+        {
+            Gate.Release();
+        }
     }
     
-    public int SubscriberCount => _connectionSubscriptionMetadata.Value.ChannelSubscribedToCount;
+    public int SubscriptionCount => _connectionSubscriptionMetadata.Value.ChannelSubscribedToCount;
     
     public bool HasAnySubscription => _connectionSubscriptionMetadata.Value.HasAnySubscription;
     

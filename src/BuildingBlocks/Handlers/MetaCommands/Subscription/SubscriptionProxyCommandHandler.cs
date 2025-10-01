@@ -10,7 +10,7 @@ public class SubscriptionProxyCommandHandler : ICommandHandler<Command>
     [
         Constants.SubscribeCommand, 
         Constants.PingCommand,
-        //Constants.UnsubscribeCommand, 
+        Constants.UnsubscribeCommand, 
         //Constants.PSubscribeCommand,
         //Constants.PUnsubscribeCommand,
         //Constants.QuitCommand
