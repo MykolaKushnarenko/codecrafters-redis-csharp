@@ -12,9 +12,14 @@ public class SubscriptionManager
 {
     private readonly Dictionary<string, List<Socket>> _subscribers = new();
     
-    private readonly AsyncLocal<ConnectionSubscriptionMetadata> _connectionSubscriptionMetadata = new(){Value = new ConnectionSubscriptionMetadata()};
+    private readonly AsyncLocal<ConnectionSubscriptionMetadata> _connectionSubscriptionMetadata = new ();
     
     private static readonly SemaphoreSlim Gate = new(1);
+
+    public void Initiate()
+    {
+        _connectionSubscriptionMetadata.Value = new ConnectionSubscriptionMetadata();
+    }
     
     public async Task SubscribeToChannelAsync(string channel, Socket subscriber)
     {

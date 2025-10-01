@@ -31,7 +31,7 @@ public class SubscriptionProxyCommandHandler : ICommandHandler<Command>
 
     public Task<CommandResult> HandleAsync(Command command, CancellationToken cancellationToken)
     {
-        if (_subscriptionManager.HasAnySubscription || _allowedCommands.Contains(_innerHandler.HandlingCommandName))
+        if (!_subscriptionManager.HasAnySubscription || _allowedCommands.Contains(_innerHandler.HandlingCommandName))
         {
             return _innerHandler.HandleAsync(command, cancellationToken);
         }

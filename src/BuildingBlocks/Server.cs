@@ -20,6 +20,7 @@ public class Server
     private readonly AcknowledgeCommandTracker _acknowledge;
     private readonly TransactionManager _transactionManager;
     private readonly SocketAccessor _socketAccessor;
+    private readonly SubscriptionManager _subscriptionManager;
 
     public Server(
         IMediator mediator, 
@@ -29,7 +30,7 @@ public class Server
         ReplicationManager replicationManager, 
         AcknowledgeCommandTracker acknowledge, 
         TransactionManager transactionManager, 
-        SocketAccessor socketAccessor)
+        SocketAccessor socketAccessor, SubscriptionManager subscriptionManager)
     {
         _mediator = mediator;
         _configuration = configuration;
@@ -39,6 +40,7 @@ public class Server
         _acknowledge = acknowledge;
         _transactionManager = transactionManager;
         _socketAccessor = socketAccessor;
+        _subscriptionManager = subscriptionManager;
     }
 
     public async Task RunAsync()
@@ -70,6 +72,7 @@ public class Server
         try
         {
             _transactionManager.Initiate();
+            _subscriptionManager.Initiate();
             _socketAccessor.SetSocket(socket);
             
             await using var networkStream = new NetworkStream(socket, FileAccess.ReadWrite);

@@ -71,6 +71,7 @@ public class Initiator
         _ = Task.Run(async () =>
         {
             _manager.Initiate();
+            _subscriptionManager.Initiate();
             
             while (!cancellationToken.IsCancellationRequested)
             {
