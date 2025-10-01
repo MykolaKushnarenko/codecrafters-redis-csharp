@@ -1,6 +1,7 @@
 using DotRedis.BuildingBlocks.CommandResults;
 using DotRedis.BuildingBlocks.Commands;
 using DotRedis.BuildingBlocks.Configurations;
+using DotRedis.BuildingBlocks.Services;
 
 namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 
@@ -16,10 +17,14 @@ namespace DotRedis.BuildingBlocks.Handlers.ReadCommands;
 public class PingCommandHandler : ICommandHandler<Command>
 {
     private readonly ServerConfiguration _configuration;
+    private readonly SubscriptionManager _subscriptionManager;
 
-    public PingCommandHandler(ServerConfiguration configuration)
+    public PingCommandHandler(
+        ServerConfiguration configuration, 
+        SubscriptionManager subscriptionManager)
     {
         _configuration = configuration;
+        _subscriptionManager = subscriptionManager;
     }
 
     public string HandlingCommandName => Constants.PingCommand;
@@ -29,6 +34,14 @@ public class PingCommandHandler : ICommandHandler<Command>
         if (_configuration.Role == "slave")
         {
             return Task.FromResult<CommandResult>(new MasterReplicationResult());
+        }
+
+        if (_subscriptionManager.HasAnySubscription)
+        {
+            var arrayResult = ArrayResult.Create(BulkStringResult.Create(Constants.PongResponse.ToLower()));
+            arrayResult.Add(BulkStringResult.Create(string.Empty));
+
+            return Task.FromResult<CommandResult>(arrayResult);
         }
         
         return Task.FromResult<CommandResult>(SimpleStringResult.Create(Constants.PongResponse));
