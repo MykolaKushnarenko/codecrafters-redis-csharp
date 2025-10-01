@@ -39,12 +39,12 @@ public class SubscriptionManager
         }
     }
     
-    public async ValueTask<int> PublishMessageAsync(string channel, CommandResult commandResult, CancellationToken cancellationToken)
+    public async ValueTask<int> PublishMessageAsync(string channel, string message, CancellationToken cancellationToken)
     {
         //insdead of blocking a client we need to queue messages to user
         //add error handling
 
-        await Gate.WaitAsync();
+        await Gate.WaitAsync(cancellationToken);
 
         try
         {
@@ -55,15 +55,18 @@ public class SubscriptionManager
                 return 0;
             }
 
-            var responses = RaspConverter.Convert(commandResult).Where(x => x.Length > 0);
+            var arrayResult = ArrayResult.Create(BulkStringResult.Create("message"));
+            arrayResult.Add(BulkStringResult.Create(channel));
+            arrayResult.Add(BulkStringResult.Create(message));
+            
+            var responses = RaspConverter.Convert(arrayResult).Where(x => x.Length > 0);
 
             foreach (var subscriber in subscribers)
             {
-                foreach (var response in responses)
-                {
-                    await subscriber.SendAsync(response, cancellationToken);
-                }
+                await subscriber.SendAsync(responses.First(), cancellationToken);
             }
+
+            return subscribers.Count;
         }
         finally
         {

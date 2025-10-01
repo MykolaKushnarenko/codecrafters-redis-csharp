@@ -31,6 +31,7 @@ public static class Constants
     public const string LPopCommand = "LPOP";
     public const string BLPopCommand = "BLPOP";
     public const string SubscribeCommand = "SUBSCRIBE";
+    public const string PublishCommand = "PUBLISH";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";
