@@ -7,5 +7,6 @@ public enum RedisValueType
     Set,
     Hash,
     Stream,
-    Integer
+    Integer,
+    SortedSet
 }

@@ -25,13 +25,24 @@ public class RedisValue
         var result = value switch
         {
             IList list => new RedisValue(RedisValueType.List, list),
-            IDictionary dictionary => new RedisValue(RedisValueType.Hash, dictionary),
+            IDictionary dictionary => CreateRedisValue(dictionary),
             long integer => new RedisValue(RedisValueType.Integer, integer),
             string s => CreateRedisValue(s),
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
         };
 
         return result;
+    }
+
+    private static RedisValue CreateRedisValue(IDictionary dictionary)
+    {
+        var type = dictionary.GetType();
+        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(SortedDictionary<,>))
+        {
+            return new RedisValue(RedisValueType.SortedSet, dictionary);
+        }
+        
+        return new RedisValue(RedisValueType.Hash, dictionary);
     }
 
     private static RedisValue CreateRedisValue(string s)

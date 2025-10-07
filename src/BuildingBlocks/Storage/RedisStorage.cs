@@ -78,4 +78,17 @@ public class RedisStorage
         
         return list.Count;
     }
+
+    public int ZAdd(string key, double score, string value)
+    {
+        var redisValue = _data.GetOrAdd(key, _ => RedisValue.Create(new SortedDictionary<double, string>()));
+
+        var sortedSet = (SortedDictionary<double, string>)redisValue.Value;
+
+        var itemsCount = sortedSet.Count;
+        
+        sortedSet[score] = value;
+
+        return itemsCount == sortedSet.Count ? 0 : 1;
+    }
 }
