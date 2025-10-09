@@ -85,10 +85,18 @@ public class RedisStorage
 
         var sortedSet = (SortedDictionary<double, string>)redisValue.Value;
 
-        var itemsCount = sortedSet.Count;
+        var previousScore = sortedSet.FirstOrDefault(x => x.Value == value);
+        
+        if (!string.IsNullOrEmpty(previousScore.Value))
+        {
+            sortedSet.Remove(previousScore.Key);
+            sortedSet[score] = value;
+
+            return 0;
+        }
         
         sortedSet[score] = value;
 
-        return itemsCount == sortedSet.Count ? 0 : 1;
+        return 1;
     }
 }
