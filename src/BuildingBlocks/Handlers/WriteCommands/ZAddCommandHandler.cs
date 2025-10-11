@@ -20,9 +20,9 @@ public class ZAddCommandHandler : ICommandHandler<Command>
     {
         var key = command.Arguments[0].ToString();
         var weight = double.Parse(command.Arguments[1].ToString(), CultureInfo.InvariantCulture);
-        var value = command.Arguments[2].ToString();
+        var scoreKey = command.Arguments[2].ToString();
         
-        var added = _redisStorage.ZAdd(key, weight, value);
+        var added = _redisStorage.ZAdd(key, weight, scoreKey);
 
         return Task.FromResult<CommandResult>(IntegerResult.Create(added));
     }

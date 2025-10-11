@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using codecrafters_redis.BuildingBlocks.Storage;
+using DotRedis.BuildingBlocks.Core;
 
 namespace DotRedis.BuildingBlocks.Storage;
 
@@ -79,23 +80,24 @@ public class RedisStorage
         return list.Count;
     }
 
-    public int ZAdd(string key, double score, string value)
+    public int ZAdd(string key, double score, string scoreKey)
     {
-        var redisValue = _data.GetOrAdd(key, _ => RedisValue.Create(new SortedDictionary<double, string>()));
-
-        var sortedSet = (SortedDictionary<double, string>)redisValue.Value;
-
-        var previousScore = sortedSet.FirstOrDefault(x => x.Value == value);
-        
-        if (!string.IsNullOrEmpty(previousScore.Value))
+        if (!_data.TryGetValue(key, out var sortedSetRedisValue))
         {
-            sortedSet.Remove(previousScore.Key);
-            sortedSet[score] = value;
+            sortedSetRedisValue = RedisValue.Create(new RedisSortedSet());
+            _data.TryAdd(key, sortedSetRedisValue);
+        }
+
+        var sortedSet = (RedisSortedSet)sortedSetRedisValue.Value;
+        
+        if (sortedSet.Contains(scoreKey))
+        {
+            sortedSet[scoreKey] = score;
 
             return 0;
         }
         
-        sortedSet[score] = value;
+        sortedSet[scoreKey] = score;
 
         return 1;
     }
