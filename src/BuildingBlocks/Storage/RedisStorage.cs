@@ -101,4 +101,21 @@ public class RedisStorage
 
         return 1;
     }
+    
+    public int? ZRank(string key, string scoreKey)
+    {
+        if (!_data.TryGetValue(key, out var sortedSetRedisValue))
+        {
+            return null;
+        }
+
+        var sortedSet = (RedisSortedSet)sortedSetRedisValue.Value;
+
+        if (!sortedSet.Contains(scoreKey))
+        {
+            return null;
+        }
+
+        return sortedSet.Rank(scoreKey);
+    }
 }

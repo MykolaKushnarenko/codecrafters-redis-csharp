@@ -34,6 +34,7 @@ public static class Constants
     public const string PublishCommand = "PUBLISH";
     public const string UnsubscribeCommand = "UNSUBSCRIBE";
     public const string ZAddCommand = "ZADD";
+    public const string ZRank = "ZRANK";
     
     public const string DirArgument = "--dir";
     public const string DbFileNameArgument = "--dbfilename";
